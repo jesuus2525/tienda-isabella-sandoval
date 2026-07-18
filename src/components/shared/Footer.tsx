@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { FaFacebook, FaInstagram, FaTiktok } from "react-icons/fa";
+import { FaFacebook, FaInstagram, FaTiktok, FaWhatsapp } from "react-icons/fa";
 import { FiChevronRight } from "react-icons/fi";
 
 export const Footer = () => {
@@ -10,7 +10,7 @@ export const Footer = () => {
         {/* Sección 1: Marca y Boletín */}
         <div className="flex-1 min-w-[250px] flex flex-col gap-4">
           <Link to="/" className="text-2xl font-bold text-white tracking-wider">
-            ISABELLA <span className="text-cyan-500">SANDOVAL</span>
+            ISABELLA <span className="text-rose-500 font-light">SANDOVAL</span>
           </Link>
           <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">
             Suscríbete a nuestro boletín
@@ -57,6 +57,9 @@ export const Footer = () => {
             </a>
             <a href="https://tiktok.com" target="_blank" rel="noreferrer" className="border border-gray-800 p-2.5 rounded-full hover:bg-white hover:text-gray-950 transition-all duration-300">
               <FaTiktok size={18} />
+            </a>
+            <a href="https://tiktok.com" target="_blank" rel="noreferrer" className="border border-gray-800 p-2.5 rounded-full hover:bg-white hover:text-gray-950 transition-all duration-300">
+              <FaWhatsapp size={18} />
             </a>
           </div>
         </div>

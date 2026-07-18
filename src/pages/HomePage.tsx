@@ -65,10 +65,11 @@ export const HomePage = () => {
         </h1>
       </div>
 
-      <div className="flex overflow-x-auto gap-3 pb-4 justify-start md:justify-center scrollbar-hide">
+     {/* Menú de Categorías (Filtros) */}
+      <div className="flex overflow-x-auto gap-2 pb-4 justify-start md:justify-center scrollbar-hide px-2">
         {categoriasDisponibles.map((cat) => (
           <button key={cat} onClick={() => setCategoriaActiva(cat)}
-            className={`px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-300 ${
+            className={`px-4 py-2 sm:px-6 sm:py-2.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-300 ${
               categoriaActiva === cat ? "bg-gray-900 text-white" : "bg-white text-gray-500 border border-gray-200 hover:border-gray-900"
             }`}>
             {cat}
@@ -76,7 +77,7 @@ export const HomePage = () => {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-8">
         {productosFiltrados.map((prod) =>{
           
           // 👇 AQUÍ DEBE IR LA CONSTANTE, DENTRO DEL MAP 👇
@@ -179,17 +180,18 @@ export const HomePage = () => {
                   </div>
                 </div>
 
-                <button
-                  onClick={() => {
-                    agregarAlCarrito(productoModal, tonosSeleccionados[productoModal.id]);
-                    setProductoModal(null); // Cierra el modal tras agregar
-                  }}
-                  className="w-full bg-gray-950 text-white py-4 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-rose-600 transition shadow-xl"
-                >
-                  <ShoppingBag size={16} /> Añadir al Carrito
+                  <button
+                    onClick={() => {
+                      agregarAlCarrito(productoModal, tonosSeleccionados[productoModal.id]);
+                      setProductoModal(null); // Cierra el modal tras agregar
+                    }}
+                    className="mt-5 w-full bg-gray-950 text-white py-3.5 px-4 rounded-xl text-xs font-bold uppercase tracking-widest flex flex-row items-center justify-center hover:bg-rose-600 transition"
+                  >
+                    <ShoppingBag size={16} className="shrink-0 mr-2" />
+                  <span>Añadir al Carrito</span>
                 </button>
+                </div>
               </div>
-            </div>
 
             {/* SECCIÓN: TAMBIÉN TE PUEDE INTERESAR */}
             {productosRecomendados.length > 0 && (

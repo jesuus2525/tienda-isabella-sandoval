@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 import { Navbar } from "../components/shared/Navbar";
 import { Footer } from "../components/shared/Footer";
 import { CartDrawer } from "../components/shared/CartDrawer";
+
 export const RootLayout = () => {
   const [carrito, setCarrito] = useState<any[]>([]);
   const [isCarritoAbierto, setIsCarritoAbierto] = useState(false);
@@ -28,13 +29,6 @@ export const RootLayout = () => {
       setIsCarritoAbierto(true);
     } // Despliega el carrito visualmente
   };
-
-
-  // Formateador de cadenas para el API del bot de WhatsApp
-  // Asegúrate de importar supabase al inicio del archivo donde pongas esto:
-// import { supabase } from "../supabase/client";
-
-
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-gray-900 font-sans antialiased">
