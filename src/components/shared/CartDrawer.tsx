@@ -82,7 +82,7 @@ export const CartDrawer = ({ carrito, setCarrito, isCarritoAbierto, cerrarCarrit
       mensaje += `\n💵 *Total a Pagar:* $${totalCarrito.toLocaleString("es-CO")}\n\n¡Hola! Acabo de registrar mi pedido.`;
 
       // REEMPLAZA ESTE NÚMERO POR EL TUYO
-      const numeroVentas = "573151635851"; 
+      const numeroVentas = "573012970476"; 
       window.open(`https://wa.me/${numeroVentas}?text=${encodeURIComponent(mensaje)}`, "_blank");
 
       setCarrito([]);
