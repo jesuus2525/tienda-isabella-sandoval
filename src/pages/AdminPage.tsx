@@ -42,15 +42,16 @@ export const AdminPage = () => {
   // Función inteligente de auto-categorización
   const analizarCategoria = (nombreProducto: string) => {
     const nombre = nombreProducto.toLowerCase();
-    const palabrasLabios = ['labial', 'gloss', 'brillo', 'tinta', 'bálsamo'];
-    const palabrasOjos = ['sombra', 'paleta', 'pestañina', 'delineador', 'cejas'];
-    const palabrasRostro = ['base', 'rubor', 'iluminador', 'corrector', 'polvo', 'primer'];
-    const palabrasPiel = ['crema', 'serum', 'suero', 'limpiador', 'tónico', 'mascarilla'];
-
+    const palabrasLabios = ['labios','labial', 'gloss', 'brillo', 'tinta', 'bálsamo'];
+    const palabrasOjos = ['ojos','sombra', 'paleta', 'pestañina', 'delineador', 'cejas','pestañas','encresador'];
+    const palabrasRostro = ['rostro', 'Desmaquillador','base', 'rubor', 'iluminador', 'corrector', 'polvo', 'primer', 'maquillaje', 'facial','Fijador'];
+    const palabrasPiel = ['piel','crema', 'serum', 'suero', 'limpiador', 'tónico', 'mascarilla', 'corporal', 'skincare', 'antiedad', 'protector solar', 'protector'];
+    const palabrascabello = ['cepillo', 'capilar', 'balaca'];
     if (palabrasLabios.some(palabra => nombre.includes(palabra))) return 'Labios';
     if (palabrasOjos.some(palabra => nombre.includes(palabra))) return 'Ojos';
     if (palabrasRostro.some(palabra => nombre.includes(palabra))) return 'Rostro';
     if (palabrasPiel.some(palabra => nombre.includes(palabra))) return 'Cuidado de la Piel';
+    if (palabrascabello.some(palabra => nombre.includes(palabra))) return 'Cabello';
     return 'Otros';
   };
 

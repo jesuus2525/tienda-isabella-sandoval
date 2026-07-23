@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { supabase } from "../supabase/client";
+import { Eye, EyeOff, Lock } from "lucide-react";
+
 
 export const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(false);
+  const [mostrarPassword, setMostrarPassword] = useState(false);
 
   const iniciarSesion = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,13 +57,25 @@ export const LoginPage = () => {
             />
           </div>
           
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Contraseña de Seguridad</label>
-            <input 
-              type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
-              className="w-full border border-gray-200 rounded-xl p-3.5 text-sm focus:outline-none focus:border-rose-400 transition"
-              placeholder="••••••••"
-            />
+          <div>
+            <label className="text-xs font-bold text-gray-600 uppercase">Contraseña</label>
+            <div className="relative mt-1">
+              <Lock className="absolute left-3 top-3 text-gray-400" size={18} />
+              <input 
+                type={mostrarPassword ? "text" : "password"} 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full pl-10 pr-12 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-rose-500"
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                onClick={() => setMostrarPassword(!mostrarPassword)}
+                className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 transition"
+              >
+                {mostrarPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
 
           <button 

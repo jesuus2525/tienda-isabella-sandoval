@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { FaFacebook, FaInstagram, FaTiktok, FaWhatsapp } from "react-icons/fa";
+import { FaInstagram, FaTiktok, FaWhatsapp } from "react-icons/fa";
 import { FiChevronRight } from "react-icons/fi";
 
 export const Footer = () => {
@@ -36,7 +36,7 @@ export const Footer = () => {
         <div className="flex-1 min-w-[200px] flex flex-col gap-4">
           <p className="font-semibold uppercase tracking-wider text-white text-sm">Políticas</p>
           <nav className="flex flex-col gap-2 text-xs font-medium">
-            <Link to="/celulares" className="text-slate-400 hover:text-white transition-colors">Productos</Link>
+            <Link to="" className="text-slate-400 hover:text-white transition-colors">Productos</Link>
             <a href="#" className="text-slate-400 hover:text-white transition-colors">Políticas de Privacidad</a>
             <a href="#" className="text-slate-400 hover:text-white transition-colors">Términos de Uso</a>
           </nav>
@@ -49,16 +49,13 @@ export const Footer = () => {
             No te pierdas ninguna de las tendencias y novedades que tenemos para ti.
           </p>
           <div className="flex gap-3">
-            <a href="https://facebook.com" target="_blank" rel="noreferrer" className="border border-gray-800 p-2.5 rounded-full hover:bg-white hover:text-gray-950 transition-all duration-300">
-              <FaFacebook size={18} />
-            </a>
-            <a href="https://instagram.com" target="_blank" rel="noreferrer" className="border border-gray-800 p-2.5 rounded-full hover:bg-white hover:text-gray-950 transition-all duration-300">
+            <a href="https://www.instagram.com/isa.s.anaya?igsh=Z3ZjemJuenY5ZmRi" target="_blank" rel="noreferrer" className="border border-gray-800 p-2.5 rounded-full hover:bg-white hover:text-gray-950 transition-all duration-300">
               <FaInstagram size={18} />
             </a>
-            <a href="https://tiktok.com" target="_blank" rel="noreferrer" className="border border-gray-800 p-2.5 rounded-full hover:bg-white hover:text-gray-950 transition-all duration-300">
+            <a href="https://www.tiktok.com/@paolavelandia76?_r=1&_t=ZS-988YVtdjWVg" target="_blank" rel="noreferrer" className="border border-gray-800 p-2.5 rounded-full hover:bg-white hover:text-gray-950 transition-all duration-300">
               <FaTiktok size={18} />
             </a>
-            <a href="https://tiktok.com" target="_blank" rel="noreferrer" className="border border-gray-800 p-2.5 rounded-full hover:bg-white hover:text-gray-950 transition-all duration-300">
+            <a href="https://wa.me/+573012970476?text=Hola%20estoy%20interesad@%20en%20tus%20productos%20amiga" target="_blank" rel="noreferrer" className="border border-gray-800 p-2.5 rounded-full hover:bg-white hover:text-gray-950 transition-all duration-300">
               <FaWhatsapp size={18} />
             </a>
           </div>

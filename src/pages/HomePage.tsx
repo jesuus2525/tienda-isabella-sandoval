@@ -103,7 +103,7 @@ export const HomePage = () => {
               {/* 2. EL RESTO DE LA TARJETA MANTIENE EL AÑADIR AL CARRITO */}
               <div className="flex-1 flex flex-col justify-between">
                 <div>
-                  <span className="text-[10px] uppercase font-bold text-rose-400 tracking-wider font-semibold">{prod.categoria_producto}</span>
+                  <span className="text-[10px] uppercase font-bold text-rose-400 tracking-wider">{prod.categoria_producto}</span>
                   <h3 className="font-bold text-sm text-gray-900 uppercase tracking-wide mt-1">{prod.nombre}</h3>
                   <p className="text-lg font-black text-gray-900 mt-1">${prod.precio.toLocaleString('es-CO')}</p>
                   
