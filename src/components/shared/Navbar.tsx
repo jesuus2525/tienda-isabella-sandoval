@@ -38,7 +38,7 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
         
         {/* LOGO */}
         <Link to="/" className="text-lg sm:text-xl font-black text-gray-900 uppercase tracking-tight">
-          ISABELLA <span className="font-light text-violet-300">SANDOVAL</span>
+          ISABELLA <span className="font-bold text-violet-300">SANDOVAL</span>
         </Link>
 
         {/* CONTROLES DE LA DERECHA */}
