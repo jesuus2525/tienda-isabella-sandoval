@@ -59,7 +59,7 @@ export const HomePage = () => {
     <div className="max-w-7xl mx-auto px-4 space-y-12 relative">
       
       <div className="text-center space-y-2 max-w-xl mx-auto">
-        <h2 className="text-xs uppercase font-bold tracking-widest text-rose-500">Colección Exclusiva</h2>
+        <h2 className="text-xs uppercase font-bold tracking-widest text-violet-300">Colección Exclusiva</h2>
         <h1 className="text-3xl font-black text-gray-900 tracking-tight uppercase sm:text-4xl">
           Realza tu Belleza <span className="font-light text-gray-500">Natural</span>
         </h1>
