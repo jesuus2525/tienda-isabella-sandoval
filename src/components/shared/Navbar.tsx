@@ -31,13 +31,19 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
     setMenuAdminAbierto(false);
     window.location.href = "/";
   };
-
+// Función para desplazar la página hacia arriba con efecto suave
+  const irArriba = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth", // "smooth" para desplazamiento suave, o "auto" para salto instantáneo
+    });
+  };
   return (
     <header className="border-b border-gray-100 bg-white sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
         
         {/* LOGO */}
-        <Link to="/" className="text-lg sm:text-xl font-black text-gray-900 uppercase tracking-tight">
+        <Link to="/" onClick={irArriba} className="text-lg sm:text-xl font-black text-gray-900 uppercase tracking-tight">
           ISABELLA <span className="font-bold text-violet-300">SANDOVAL</span>
         </Link>
 
