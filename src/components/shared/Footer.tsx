@@ -10,7 +10,7 @@ export const Footer = () => {
         {/* Sección 1: Marca y Boletín */}
         <div className="flex-1 min-w-[250px] flex flex-col gap-4">
           <Link to="/" className="text-2xl font-bold text-white tracking-wider">
-            ISABELLA <span className="text-rose-500 font-light">SANDOVAL</span>
+            ISABELLA <span className="text-violet-300 font-light">SANDOVAL</span>
           </Link>
           <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">
             Suscríbete a nuestro boletín
