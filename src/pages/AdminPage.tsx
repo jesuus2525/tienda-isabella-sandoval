@@ -3,18 +3,21 @@ import { supabase } from "../supabase/client";
 import { useTheme } from "../context/ThemeContext";
 import { 
   Package, PlusCircle, UploadCloud, Search, Edit, Trash2, X, 
-  ClipboardList, LayoutDashboard, Palette, LogOut, CheckCircle2, 
-  AlertCircle, Eye, ArrowUpDown, Image as ImageIcon, Link as LinkIcon ,ShoppingCart
+  ClipboardList, LayoutDashboard, Palette, LogOut,  Eye, ArrowUpDown, Image as ImageIcon, Link as LinkIcon ,ShoppingCart
 } from "lucide-react";
-
+import { useNotification } from "../context/NotificationContext";
 export const AdminPage = () => {
   const { config, actualizarConfig } = useTheme();
   const [tabActiva, setTabActiva] = useState<'dashboard' | 'inventario' | 'pedidos' | 'personalizacion'>('dashboard');
-  const [toast, setToast] = useState<{ mensaje: string; tipo: 'exito' | 'error' } | null>(null);
-
+  
+  const { notify } = useNotification();
   const mostrarNotificacion = (mensaje: string, tipo: 'exito' | 'error' = 'exito') => {
-    setToast({ mensaje, tipo });
-    setTimeout(() => setToast(null), 3500);
+    notify({
+      title: tipo === 'exito' ? 'Éxito' : 'Error',
+      message: mensaje,
+      type: tipo === 'exito' ? 'success' : 'error',
+      duration: 4000,
+    });
   };
 
   // Estados Inventario
@@ -28,6 +31,7 @@ export const AdminPage = () => {
   const [modoEdicion, setModoEdicion] = useState<any | null>(null);
   const [nombre, setNombre] = useState('');
   const [precio, setPrecio] = useState('');
+  const [precio_al_mayor, setPrecio_al_mayor] = useState('');
   const [stock, setStock] = useState('10');
   const [tonos, setTonos] = useState('');
   const [descripcion, setDescripcion] = useState('');
@@ -100,6 +104,7 @@ export const AdminPage = () => {
       const payload = {
         nombre: nombre.toUpperCase(),
         precio: parseFloat(precio),
+        precio_al_mayor: parseFloat(precio_al_mayor),
         stock: parseInt(stock) || 0,
         tonos: arregloTonos,
         descripcion,
@@ -137,6 +142,7 @@ export const AdminPage = () => {
     setModoEdicion(prod);
     setNombre(prod.nombre);
     setPrecio(prod.precio.toString());
+    setPrecio_al_mayor(prod.precio_al_mayor.toString());
     setStock(prod.stock.toString());
     setTonos(prod.tonos ? prod.tonos.join(', ') : '');
     setDescripcion(prod.descripcion || '');
@@ -146,7 +152,7 @@ export const AdminPage = () => {
   };
 
   const limpiarFormulario = () => {
-    setModoEdicion(null); setNombre(''); setPrecio(''); setStock('10'); setTonos(''); setDescripcion(''); setImagenArchivo(null); setImagenPrevisualizacion(null);
+    setModoEdicion(null); setNombre(''); setPrecio('');setPrecio_al_mayor(''); setStock('10'); setTonos(''); setDescripcion(''); setImagenArchivo(null); setImagenPrevisualizacion(null);
   };
 
   const eliminarProducto = async (id: number) => {
@@ -245,13 +251,7 @@ export const AdminPage = () => {
   return (
     <div className="min-h-screen flex flex-col md:flex-row relative" style={{ backgroundColor: config.colorFondoPagina_adm || "#f9fafb" }}>
       
-      {/* TOAST FLOTANTE */}
-      {toast && (
-        <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl text-white font-bold text-xs uppercase animate-bounce ${toast.tipo === 'exito' ? 'bg-emerald-600' : 'bg-rose-600'}`}>
-          {toast.tipo === 'exito' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
-          <span>{toast.mensaje}</span>
-        </div>
-      )}
+      
 
       {/* SIDEBAR ADMINISTRATIVO */}
       <aside className="w-full md:w-64 bg-gray-950 text-white flex-shrink-0 p-6 flex flex-col justify-between shadow-xl">
@@ -329,6 +329,10 @@ export const AdminPage = () => {
                   <input type="number" value={precio} onChange={e => setPrecio(e.target.value)} className="w-full px-4 py-2.5 rounded-xl border bg-gray-50 text-xs font-semibold focus:outline-none" />
                 </div>
                 <div>
+                  <label className="text-[10px] font-bold uppercase text-gray-400">Precio al Mayor (COP)</label>
+                  <input type="number" value={precio_al_mayor} onChange={e => setPrecio_al_mayor(e.target.value)} className="w-full px-4 py-2.5 rounded-xl border bg-gray-50 text-xs font-semibold focus:outline-none" />
+                </div>
+                <div>
                   <label className="text-[10px] font-bold uppercase text-gray-400">Stock</label>
                   <input type="number" value={stock} onChange={e => setStock(e.target.value)} className="w-full px-4 py-2.5 rounded-xl border bg-gray-50 text-xs font-semibold focus:outline-none" />
                 </div>
@@ -380,6 +384,7 @@ export const AdminPage = () => {
                 <select value={ordenCampo} onChange={(e: any) => setOrdenCampo(e.target.value)} className="bg-gray-50 border border-gray-200 text-xs font-bold uppercase px-3 py-2 rounded-xl focus:outline-none">
                   <option value="nombre">Nombre</option>
                   <option value="precio">Precio</option>
+                  <option value="precio_al_mayor">Precio al Mayor</option>
                   <option value="stock">Stock</option>
                   <option value="categoria_producto">Categoría</option>
                 </select>
@@ -398,6 +403,7 @@ export const AdminPage = () => {
                       <th className="p-4">Producto</th>
                       <th className="p-4">Categoría</th>
                       <th className="p-4">Precio</th>
+                      <th className="p-4">Precio al Mayor</th>
                       <th className="p-4">Stock</th>
                       <th className="p-4 text-right">Acciones</th>
                     </tr>
@@ -421,6 +427,7 @@ export const AdminPage = () => {
                         </td>
                         <td className="p-4 font-bold text-rose-500 uppercase">{prod.categoria_producto || 'Otros'}</td>
                         <td className="p-4 font-black text-gray-900">${prod.precio?.toLocaleString('es-CO')}</td>
+                        <td className="p-4 font-black text-gray-900">${prod.precio_al_mayor?.toLocaleString('es-CO')}</td>
                         <td className="p-4">
                           <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${prod.stock > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
                             {prod.stock} un.
@@ -461,7 +468,8 @@ export const AdminPage = () => {
                     <tr>
                       <th className="px-4 py-3 rounded-tl-lg">Referencia</th>
                       <th className="px-4 py-3">Cliente</th>
-                      <th className="px-4 py-3">Total</th>
+                      <th className="px-4 py-3">Total</th>  
+                      <th className="px-4 py-3">precio al mayor</th>
                       <th className="px-4 py-3">Estado</th>
                       <th className="px-4 py-3">Fecha</th>
                       <th className="px-4 py-3 text-right rounded-tr-lg">Acciones</th>

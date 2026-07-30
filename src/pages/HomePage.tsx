@@ -1,25 +1,46 @@
 import { useState, useEffect } from "react";
-import { useOutletContext } from "react-router-dom";
-import { ShoppingBag, X, ShoppingCart } from "lucide-react";
+
+import { useOutletContext, useSearchParams } from "react-router-dom";
+import { ArrowRight, ChevronLeft, ChevronRight, ShoppingBag, X } from "lucide-react";
+import {  ShoppingCart } from "lucide-react";
 import { supabase } from "../supabase/client";
 import { useTheme } from "../context/ThemeContext";
-import { useSearchParams } from "react-router-dom"; // <-- Agrega esto a tus importaciones
-
-
+import { PRODUCTOS_MAQUILLAJE } from "../data/productos";
 // Listado de conectores y palabras vacías a ignorar en la búsqueda
 const CONECTORES = new Set([
   "de", "del", "la", "el", "los", "las", "un", "una", "unos", "unas", 
   "y", "o", "en", "con", "para", "por", "a", "al", "se", "su", "sus"
 ]); 
+const DIAS_PRODUCTO_NUEVO = 30;
+
+const esProductoNuevo = (producto: any) => {
+  const fecha = producto.created_at ?? producto.fecha_creacion ?? producto.fecha_ingreso ?? producto.createdAt;
+  if (!fecha) return false;
+
+  const fechaCreacion = new Date(fecha).getTime();
+  const ahora = Date.now();
+  const antiguedad = ahora - fechaCreacion;
+
+  return Number.isFinite(fechaCreacion) && antiguedad >= 0 && antiguedad <= DIAS_PRODUCTO_NUEVO * 24 * 60 * 60 * 1000;
+};
+
 export const HomePage = () => {
   const { agregarAlCarrito } = useOutletContext<any>();
+  
   const { config } = useTheme();
+  const bannersPromocionales = (config.bannersPromocionales && config.bannersPromocionales.length > 0 ? config.bannersPromocionales : [
+    'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?q=80&w=1200&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=1200&auto=format&fit=crop'
+  ]).filter(Boolean);
   const [productos, setProductos] = useState<any[]>([]);
   const [cargando, setCargando] = useState(true);
   const [tonosSeleccionados, setTonosSeleccionados] = useState<{ [key: number]: string }>({});
   const [categoriaActiva, setCategoriaActiva] = useState('Todos');
+  const [bannerActual, setBannerActual] = useState(0);
+  const [pausarCarrusel, setPausarCarrusel] = useState(false);
   const [searchParams] = useSearchParams(); // <-- 1. Captura la URL
   const terminoBusqueda = searchParams.get("buscar")?.toLowerCase() || ""; // <-- 2. Lee la palabra
+  const [toast, setToast] = useState<{ mensaje: string; tipo: "exito" | "error" } | null>(null);
   
   // NUEVO: Estado para controlar el Modal del producto
   const [productoModal, setProductoModal] = useState<any | null>(null);
@@ -27,22 +48,135 @@ export const HomePage = () => {
   const [compraDirecta, setCompraDirecta] = useState<{producto: any, tono: string} | null>(null);
   const [datosCliente, setDatosCliente] = useState({ nombre: '', telefono: '', direccion: '' });
   const [cargandoCompra, setCargandoCompra] = useState(false);
+
+  const finalizarPedido = async (producto: any, tono: string, precio: number) => {
+                const compraActual = compraDirecta;
+
+                if (!compraActual) {
+                  mostrarNotificacion("No se encontró el producto para esta compra.", "error");
+                  return;
+                }
+
+                if(datosCliente.telefono.toString().length !== 10 ) 
+                   {
+                   mostrarNotificacion("Por favor, ingresar un numero correcto (10 digitos).", "error");
+                  return;
+                }
+                
+                if(!datosCliente.nombre || !datosCliente.telefono || datosCliente.telefono.toString().length !== 10 || !datosCliente.direccion) 
+                   {
+                  mostrarNotificacion("Por favor, completa todos los campos para poder realizar el envío.", "error");
+                  return;
+                }
+
+                setCargandoCompra(true);
+                const numRef = `REF_DIRECT-${Math.floor(100000 + Math.random() * 900000)}`;
+
+                try {
+                  // 1. Guardar en Supabase simulando la estructura del carrito
+                  const { error } = await supabase.from("pedidos").insert([
+                    {
+                      num_ref: numRef,
+                      // Convertimos el producto en un arreglo para que la BD lo lea igual que un carrito
+                      pedido_detallado: [{
+                        ...compraActual.producto,
+                        cantidad: 1,
+                        tonoSeleccionado: compraActual.tono || 'Único'
+                      }],
+                      precio_total: compraActual.producto.precio,
+                      cliente_nombre: datosCliente.nombre,
+                      cliente_telefono: datosCliente.telefono,
+                      direccion_envio: datosCliente.direccion,
+                      estado: "En espera",
+                    },
+                  ]);
+
+                  if (error) throw error;
+
+                  // 2. Formatear mensaje de WhatsApp con la referencia
+                  const numeroAdmin = "573012970476"; // <--- RECUERDA CAMBIAR ESTE NÚMERO
+                  const mensaje = `¡Hola! Quiero hacer una compra directa. \n\n` +
+                                  ` *Referencia:* ${numRef}\n` +
+                                  `*Producto:* ${compraActual.producto.nombre}\n` +
+                                  `*Tono:* ${compraActual.tono || 'Único'}\n` +
+                                  `*Total a Pagar:* $${compraActual.producto.precio.toLocaleString('es-CO')}\n\n` +
+                                  `📍 *Mis Datos para Envío:*\n` +
+                                  `- Nombre: ${datosCliente.nombre}\n` +
+                                  `- Teléfono: ${datosCliente.telefono}\n` +
+                                  `- Dirección: ${datosCliente.direccion}\n\n` +
+                                  `Quedo atento(a) para confirmar detalles y pago.`;
+                  
+                  // 3. Abrir WhatsApp, limpiar el formulario y cerrar el modal
+                  window.open(`https://wa.me/${numeroAdmin}?text=${encodeURIComponent(mensaje)}`, '_blank');
+                  setDatosCliente({ nombre: '', telefono: '', direccion: '' });
+                  setCompraDirecta(null); 
+                  
+                } catch (err) {
+                  mostrarNotificacion("Hubo un error al registrar el pedido. Intenta nuevamente.", "error");
+                } finally {
+                  setCargandoCompra(false);
+                }
+              }
+
+ // 2. Tu función para mostrar la notificación (autodestructible a los 3.5s)
+  const mostrarNotificacion = (mensaje: string, tipo: "exito" | "error" = "exito") => {
+    setToast({ mensaje, tipo });
+    setTimeout(() => setToast(null), 3500);
+  };
+
+  const handleAccionEjemplo = () => {
+    // Ejemplo de uso al realizar una acción exitosa
+    mostrarNotificacion("¡Producto guardado con éxito!", "exito");
+  };
+
   useEffect(() => {
     const obtenerProductos = async () => {
-      const { data } = await supabase.from("productos").select("*");
-      if (data) {
-        setProductos(data);
-        const tonosIniciales = data.reduce((acc, prod) => ({ ...acc, [prod.id]: prod.tonos[0] }), {});
+       try {
+        const { data, error } = await supabase.from("productos").select("*");
+        const datos = data && data.length > 0 ? data : PRODUCTOS_MAQUILLAJE;
+
+        if (error && !data) {
+          setProductos(PRODUCTOS_MAQUILLAJE);
+        } else {
+          setProductos(datos);
+        }
+
+        const tonosIniciales = (datos || PRODUCTOS_MAQUILLAJE).reduce((acc, prod) => ({ ...acc, [prod.id]: prod.tonos[0] }), {});
         setTonosSeleccionados(tonosIniciales);
+      } catch {
+        setProductos(PRODUCTOS_MAQUILLAJE);
+        const tonosIniciales = PRODUCTOS_MAQUILLAJE.reduce((acc, prod) => ({ ...acc, [prod.id]: prod.tonos[0] }), {});
+        setTonosSeleccionados(tonosIniciales);
+      } finally {
+        setCargando(false);
       }
-      setCargando(false);
     };
     obtenerProductos();
   }, []);
 
+  useEffect(() => {
+    setBannerActual((actual) => Math.min(actual, bannersPromocionales.length - 1));
+
+    if (bannersPromocionales.length < 2 || pausarCarrusel || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+
+    const timer = window.setInterval(() => {
+      setBannerActual((actual) => (actual + 1) % bannersPromocionales.length);
+    }, 5000);
+
+    return () => window.clearInterval(timer);
+  }, [bannersPromocionales.length, pausarCarrusel]);
+
+  const cambiarBanner = (direccion: number) => {
+    setBannerActual((actual) => (actual + direccion + bannersPromocionales.length) % bannersPromocionales.length);
+  };
+
   const cambiarTono = (productoId: number, tono: string) => {
     setTonosSeleccionados({ ...tonosSeleccionados, [productoId]: tono });
   };
+
+  
 
   // Extraemos las categorías únicas de la base de datos
   const categoriasExtraidas = [...new Set(productos.map(p => p.categoria_producto || 'Otros'))];
@@ -106,6 +240,92 @@ export const HomePage = () => {
       
       <div className="max-w-7xl mx-auto px-4 space-y-12 relative">
     
+    {bannersPromocionales.length > 0 && (
+         <section
+           aria-label="Banners promocionales"
+           className="relative"
+           onMouseEnter={() => setPausarCarrusel(true)}
+           onMouseLeave={() => setPausarCarrusel(false)}
+           onFocus={() => setPausarCarrusel(true)}
+           onBlur={(event) => {
+             if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setPausarCarrusel(false);
+           }}
+         >
+           <div className="relative h-[300px] overflow-hidden rounded-[28px] bg-gray-900 shadow-xl sm:h-[380px] md:h-[460px] md:rounded-[36px]">
+             {bannersPromocionales.map((banner, index) => (
+               <div
+                 key={`${banner}-${index}`}
+                 aria-hidden={index !== bannerActual}
+                 className={`absolute inset-0 transition-opacity duration-700 ${index === bannerActual ? "opacity-100" : "pointer-events-none opacity-0"}`}
+               >
+                 <img
+                   src={banner}
+                   alt=""
+                   className="h-full w-full object-cover"
+                   onError={(event) => {
+                     event.currentTarget.style.visibility = "hidden";
+                   }}
+                 />
+                 <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/35 to-transparent" />
+               </div>
+             ))}
+
+             <div className="absolute inset-0 flex items-center px-7 py-8 sm:px-12 md:px-20">
+               <div className="max-w-xl text-white">
+                 <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-pink-200 sm:text-xs">
+                   Isabella Sandoval · Belleza y cuidado
+                 </p>
+                 <h2 className="mt-3 text-3xl font-black uppercase leading-tight sm:text-4xl md:text-6xl">
+                   Belleza que inspira
+                 </h2>
+                 <p className="mt-3 max-w-md text-sm text-white/85 sm:text-base">
+                   Encuentra tus favoritos y descubre algo nuevo para ti.
+                 </p>
+                 <button
+                   type="button"
+                   onClick={() => document.getElementById("catalogo-productos")?.scrollIntoView({ behavior: "smooth" })}
+                   className="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-xs font-black uppercase tracking-wider text-gray-950 transition hover:bg-pink-100"
+                 >
+                   Ver productos <ArrowRight size={15} />
+                 </button>
+               </div>
+             </div>
+
+             {bannersPromocionales.length > 1 && (
+               <>
+                 <button
+                   type="button"
+                   aria-label="Banner anterior"
+                   onClick={() => cambiarBanner(-1)}
+                   className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/35 text-white backdrop-blur transition hover:bg-black/60 sm:left-5"
+                 >
+                   <ChevronLeft size={22} />
+                 </button>
+                 <button
+                   type="button"
+                   aria-label="Siguiente banner"
+                   onClick={() => cambiarBanner(1)}
+                   className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/35 text-white backdrop-blur transition hover:bg-black/60 sm:right-5"
+                 >
+                   <ChevronRight size={22} />
+                 </button>
+                 <div className="absolute bottom-5 left-1/2 flex -translate-x-1/2 gap-2">
+                   {bannersPromocionales.map((banner, index) => (
+                     <button
+                       key={`${banner}-dot-${index}`}
+                       type="button"
+                       aria-label={`Mostrar banner ${index + 1}`}
+                       aria-current={index === bannerActual}
+                       onClick={() => setBannerActual(index)}
+                       className={`h-2.5 rounded-full transition-all ${index === bannerActual ? "w-7 bg-white" : "w-2.5 bg-white/60 hover:bg-white"}`}
+                     />
+                   ))}
+                 </div>
+               </>
+             )}
+           </div>
+         </section>
+       )}
       
       <div className="text-center space-y-2 max-w-xl mx-auto">
         <h2 className="text-xs uppercase font-bold tracking-widest text-violet-600">Colección Exclusiva</h2>
@@ -128,7 +348,7 @@ export const HomePage = () => {
       </div>
 {/* cantidad de productos por fila*/}
 {productosFiltrados.length > 0 || terminoBusqueda == "" ? (
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-8">
+      <div id="catalogo-productos" className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-8">
         
         {productosFiltrados.map((prod) =>{
           
@@ -145,6 +365,11 @@ export const HomePage = () => {
                 onClick={() => setProductoModal(prod)}
               >
                 <img src={prod.imagen} alt={prod.nombre} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                {esProductoNuevo(prod) && (
+                  <span className="absolute left-3 top-3 rounded-full bg-rose-600 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white shadow-lg">
+                    Nuevo
+                  </span>
+                )}
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition flex items-center justify-center">
                   <span className="opacity-0 group-hover:opacity-100 bg-white text-gray-800 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider transition shadow-sm">
                     Ver Detalles  
@@ -276,6 +501,7 @@ export const HomePage = () => {
                     onClick={() => {
                       agregarAlCarrito(productoModal, tonosSeleccionados[productoModal.id]);
                       setProductoModal(null); // Cierra el modal tras agregar
+                      mostrarNotificacion("¡Pedido agregado al carrito exitosamente!", "exito");
                     }}
                     className="mt-5 w-full bg-gray-400 text-white py-3.5 px-4 rounded-xl text-xs font-bold uppercase tracking-widest flex flex-row items-center justify-center hover:bg-rose-600 transition"
                   >
@@ -323,7 +549,10 @@ export const HomePage = () => {
             
             {/* Botón Cerrar (Se mantiene igual) */}
             <button 
-              onClick={() => setCompraDirecta(null)} 
+              onClick={() => {
+                setCompraDirecta(null);
+                handleAccionEjemplo();
+              }} 
               className="absolute top-4 right-4 z-10 flex items-center gap-2 rounded-full bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-rose-100 hover:text-rose-600 shadow-sm"
             >
               <X size={16} />
@@ -407,62 +636,7 @@ export const HomePage = () => {
 
 {/* Botón Enviar con conexión a BD */}
             <button
-              onClick={async () => {
-                
-                
-                if(!datosCliente.nombre || !datosCliente.telefono || !datosCliente.direccion) {
-                  alert("Por favor, completa todos los campos para poder realizar el envío.");
-                  return;
-                }
-
-                setCargandoCompra(true);
-                const numRef = `REF-${Math.floor(100000 + Math.random() * 900000)}`;
-
-                try {
-                  // 1. Guardar en Supabase simulando la estructura del carrito
-                  const { error } = await supabase.from("pedidos").insert([
-                    {
-                      num_ref: numRef,
-                      // Convertimos el producto en un arreglo para que la BD lo lea igual que un carrito
-                      pedido_detallado: [{
-                        ...compraDirecta.producto,
-                        cantidad: 1,
-                        tonoSeleccionado: compraDirecta.tono || 'Único'
-                      }],
-                      precio_total: compraDirecta.producto.precio,
-                      cliente_nombre: datosCliente.nombre,
-                      cliente_telefono: datosCliente.telefono,
-                      direccion_envio: datosCliente.direccion,
-                      estado: "En espera",
-                    },
-                  ]);
-
-                  if (error) throw error;
-
-                  // 2. Formatear mensaje de WhatsApp con la referencia
-                  const numeroAdmin = "573012970476"; // <--- RECUERDA CAMBIAR ESTE NÚMERO
-                  const mensaje = `¡Hola! Quiero hacer una compra directa. \n\n` +
-                                  ` *Referencia:* ${numRef}\n` +
-                                  `*Producto:* ${compraDirecta.producto.nombre}\n` +
-                                  `*Tono:* ${compraDirecta.tono || 'Único'}\n` +
-                                  `*Total a Pagar:* $${compraDirecta.producto.precio.toLocaleString('es-CO')}\n\n` +
-                                  `📍 *Mis Datos para Envío:*\n` +
-                                  `- Nombre: ${datosCliente.nombre}\n` +
-                                  `- Teléfono: ${datosCliente.telefono}\n` +
-                                  `- Dirección: ${datosCliente.direccion}\n\n` +
-                                  `Quedo atento(a) para confirmar detalles y pago.`;
-                  
-                  // 3. Abrir WhatsApp, limpiar el formulario y cerrar el modal
-                  window.open(`https://wa.me/${numeroAdmin}?text=${encodeURIComponent(mensaje)}`, '_blank');
-                  setDatosCliente({ nombre: '', telefono: '', direccion: '' });
-                  setCompraDirecta(null); 
-                  
-                } catch (err) {
-                  alert("Hubo un error al registrar el pedido. Intenta nuevamente.");
-                } finally {
-                  setCargandoCompra(false);
-                }
-              }}
+              onClick={() => finalizarPedido(compraDirecta.producto, compraDirecta.tono, compraDirecta.producto.precio)}
               disabled={cargandoCompra}
               className="mt-4 w-full bg-rose-500 text-white py-4 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-rose-600 transition shadow-lg shadow-emerald-200 disabled:bg-gray-400"
             >
@@ -472,9 +646,10 @@ export const HomePage = () => {
 
             
           </div>
-        </div>
+        </div> 
       )}
-    </div>
+    </div> 
   );
-  </div>
+
+  </div> 
 )};

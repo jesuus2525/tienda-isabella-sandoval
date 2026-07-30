@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Trash2, Send, Plus, Minus ,ShoppingCart} from "lucide-react";
 import { supabase } from "../../supabase/client"; // Asegúrate de que la ruta sea correcta
-
+import { useNotification } from "../../context/NotificationContext";
 interface CartDrawerProps {
   carrito: any[];
   setCarrito: any; // Se requiere para poder agregar sugerencias desde el drawer
@@ -9,12 +9,30 @@ interface CartDrawerProps {
   cerrarCarrito: () => void;
 }
 
+
+
 export const CartDrawer = ({ carrito, setCarrito, isCarritoAbierto, cerrarCarrito }: CartDrawerProps) => {
   const [recomendados, setRecomendados] = useState<any[]>([]);
   const [nombreCliente, setNombreCliente] = useState("");
   const [telefonoCliente, setTelefonoCliente] = useState("");
   const [direccionEnvio, setDireccionEnvio] = useState("");
   const [cargando, setCargando] = useState(false);
+  const [toast, setToast] = useState<{ mensaje: string; tipo: 'exito' | 'error' } | null>(null);
+  const { notify } = useNotification();
+  const mostrarNotificacion = (mensaje: string, tipo: 'exito' | 'error' = 'exito') => {
+    setToast({ mensaje, tipo });
+    setTimeout(() => setToast(null), 3500);
+  };
+
+  const handleAccionEjemplo = () => {
+    // Ejemplo de uso al realizar una acción exitosa
+    mostrarNotificacion("¡Producto guardado con éxito!", "exito");
+  };
+
+  const handleAccionError = () => {
+    // Ejemplo de uso al ocurrir un error
+    mostrarNotificacion("Hubo un error al procesar la solicitud", "error");
+  };
 
   // 1. Calcular el total
   const totalCarrito = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
@@ -50,52 +68,22 @@ export const CartDrawer = ({ carrito, setCarrito, isCarritoAbierto, cerrarCarrit
   };
 
   // 4. Procesar el Pedido (Guardar en BD y abrir WhatsApp)
-  const finalizarPedido = async () => {
-    if (carrito.length === 0) return alert("El carrito está vacío");
+  const finalizarPedido = async () => 
+    {
+    if (carrito.length === 0) {
+      notify({ title: 'Carrito vacío', message: 'Agrega productos antes de continuar.', type: 'info' });
+      return;
+    }
     if (!nombreCliente.trim() || !telefonoCliente.trim() || !direccionEnvio.trim()) {
-      return alert("Por favor completa todos tus datos de envío.");
+      notify({ title: 'Falta información', message: 'Completa tu nombre, teléfono y dirección de envío.', type: 'warning' });
+      return;
     }
 
     setCargando(true);
-    const numRef = `REF-${Math.floor(100000 + Math.random() * 900000)}`;
-
-    try {
-      const { error } = await supabase.from("pedidos").insert([
-        {
-          num_ref: numRef,
-          pedido_detallado: carrito,
-          precio_total: totalCarrito,
-          cliente_nombre: nombreCliente,
-          cliente_telefono: telefonoCliente,
-          direccion_envio: direccionEnvio,
-          estado: "En espera",
-        },
-      ]);
-
-      if (error) throw error;
-
-      let mensaje = `*ISABELLA SANDOVAL - NUEVO PEDIDO*\n`;
-      mensaje += `📌 *Referencia:* ${numRef}\n👤 *Cliente:* ${nombreCliente}\n📞 *Teléfono:* ${telefonoCliente}\n🏠 *Dirección:* ${direccionEnvio}\n\n🛒 *Detalle:*\n`;
-      carrito.forEach((item) => {
-        mensaje += `• ${item.cantidad}x ${item.nombre} - [${item.tonoSeleccionado}] ($${(item.precio * item.cantidad).toLocaleString("es-CO")})\n`;
-      });
-      mensaje += `\n💵 *Total a Pagar:* $${totalCarrito.toLocaleString("es-CO")}\n\n¡Hola! Acabo de registrar mi pedido.`;
-
-      // REEMPLAZA ESTE NÚMERO POR EL TUYO
-      const numeroVentas = "573012970476"; 
-      window.open(`https://wa.me/${numeroVentas}?text=${encodeURIComponent(mensaje)}`, "_blank");
-
-      setCarrito([]);
-      setNombreCliente(""); setTelefonoCliente(""); setDireccionEnvio("");
-      cerrarCarrito();
-    } catch (err) {
-      alert("Error al procesar el pedido.");
-    } finally {
-      setCargando(false);
-    }
   };
 
   return (
+    
     <>
       {isCarritoAbierto && <div className="fixed inset-0 bg-black/40 backdrop-blur-xs z-40 transition-opacity" onClick={cerrarCarrito} />}
 
@@ -191,10 +179,14 @@ export const CartDrawer = ({ carrito, setCarrito, isCarritoAbierto, cerrarCarrit
               <span className="text-xl font-black text-gray-900">${totalCarrito.toLocaleString('es-CO')}</span>
             </div>
             
-            <button onClick={finalizarPedido} disabled={cargando}
+            <button onClick={finalizarPedido}  disabled={cargando}
               className="w-full bg-emerald-600 text-white py-4 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-emerald-700 transition shadow-lg shadow-emerald-100 rounded-xl disabled:bg-gray-300">
               <Send size={16} /> {cargando ? "Registrando..." : "Generar Pedido y Abrir WhatsApp"}
+
+              
             </button>
+
+            
           </div>
         )}
       </aside>

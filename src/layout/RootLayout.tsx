@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 import { Navbar } from "../components/shared/Navbar";
 import { Footer } from "../components/shared/Footer";
 import { CartDrawer } from "../components/shared/CartDrawer";
+import { FloatingSocialBar } from "../components/shared/FloatingSocialBar";
 
 export const RootLayout = () => {
   const [carrito, setCarrito] = useState<any[]>([]);
@@ -33,7 +34,9 @@ export const RootLayout = () => {
     <div className="min-h-screen flex flex-col bg-white text-gray-900 font-sans antialiased">
       <Navbar cantidadCarrito={carrito.length} abrirCarrito={() => setIsCarritoAbierto(true)} />
 
-      {/* Repartimos la función inyectora al Outlet del enrutador */}
+      <FloatingSocialBar />
+
+  {/* Repartimos la función inyectora al Outlet del enrutador */}
       <main className="flex-1 py-10">
         <Outlet context={{ agregarAlCarrito }} />
       </main>
