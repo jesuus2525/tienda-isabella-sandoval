@@ -46,7 +46,7 @@ export const AdminPage = () => {
     const palabrasOjos = ['ojos','sombra', 'paleta', 'pestañina', 'delineador', 'cejas','pestañas','encresador'];
     const palabrasRostro = ['rostro', 'Desmaquillador','base', 'rubor', 'iluminador', 'corrector', 'polvo', 'primer', 'maquillaje', 'facial','Fijador'];
     const palabrasPiel = ['piel','crema', 'serum', 'suero', 'limpiador', 'tónico', 'mascarilla', 'corporal', 'skincare', 'antiedad', 'protector solar', 'protector'];
-    const palabrascabello = ['cepillo', 'capilar', 'balaca'];
+    const palabrascabello = ['cepillo', 'capilar', 'balaca','Anti friz','gorro','gancho' ];
     if (palabrasLabios.some(palabra => nombre.includes(palabra))) return 'Labios';
     if (palabrasOjos.some(palabra => nombre.includes(palabra))) return 'Ojos';
     if (palabrasRostro.some(palabra => nombre.includes(palabra))) return 'Rostro';
