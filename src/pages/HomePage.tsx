@@ -130,12 +130,15 @@ export const HomePage = () => {
                 </div>
 
                 <button
-                  onClick={() => agregarAlCarrito(prod, tonoActual)}
+               onClick={() => agregarAlCarrito(prod, tonoActual)}
+                 // Cambiamos justify-end por justify-center y text-xs por text-[10px]
                   className="mt-5 w-full bg-gray-950 text-white py-3.5 rounded-xl text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-rose-600 transition"
-                >
-                  <ShoppingBag size={20} />
-                  Añadir al Carrito
-                </button>
+                  >
+                           {/* Redujimos el tamaño del icono de 20 a 16 */}
+                           <span>  </span>
+                           <ShoppingBag size={16} />
+                        <span>Añadir al Carrito</span>
+                  </button>
               </div>
 
             </div>
