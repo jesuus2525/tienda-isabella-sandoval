@@ -131,7 +131,7 @@ export const HomePage = () => {
 
                 <button
                   onClick={() => agregarAlCarrito(prod, tonoActual)}
-                  className="mt-5 w-full bg-gray-950 text-white py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-rose-600 transition"
+                  className="mt-5 w-full bg-gray-950 text-white py-3.5 rounded-xl text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-rose-600 transition"
                 >
                   <ShoppingBag size={10} />
                   Añadir al Carrito
