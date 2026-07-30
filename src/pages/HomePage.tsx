@@ -61,7 +61,7 @@ export const HomePage = () => {
       <div className="text-center space-y-2 max-w-xl mx-auto">
         <h2 className="text-xs uppercase font-bold tracking-widest text-violet-300">Colección Exclusiva</h2>
         <h1 className="text-3xl font-black text-gray-900 tracking-tight uppercase sm:text-4xl">
-          Realza tu Belleza <span className="font-light text-gray-500">Natural</span>
+          Realza tu Belleza Natural
         </h1>
       </div>
 
@@ -137,8 +137,10 @@ export const HomePage = () => {
                            {/* Redujimos el tamaño del icono de 20 a 16 */}
                            <span>  </span>
                            <ShoppingBag size={20} />
-                        <span>Añadir al Carrito</span>
+                        <span>Añadir al Carrito  </span>
+                        <span> </span>
                   </button>
+
               </div>
 
             </div>
