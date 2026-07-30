@@ -136,7 +136,7 @@ export const HomePage = () => {
                   >
                            {/* Redujimos el tamaño del icono de 20 a 16 */}
                            <span>  </span>
-                           <ShoppingBag size={16} />
+                           <ShoppingBag size={20} />
                         <span>Añadir al Carrito</span>
                   </button>
               </div>
