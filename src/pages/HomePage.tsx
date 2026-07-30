@@ -59,9 +59,9 @@ export const HomePage = () => {
     <div className="max-w-7xl mx-auto px-4 space-y-12 relative">
       
       <div className="text-center space-y-2 max-w-xl mx-auto">
-        <h2 className="text-xs uppercase font-bold tracking-widest text-rose-500">Colección Exclusiva</h2>
+        <h2 className="text-xs uppercase font-bold tracking-widest text-violet-300">Colección Exclusiva</h2>
         <h1 className="text-3xl font-black text-gray-900 tracking-tight uppercase sm:text-4xl">
-          Realza tu Belleza <span className="font-light text-gray-500">Natural</span>
+          Realza tu Belleza Natural
         </h1>
       </div>
 
@@ -130,12 +130,17 @@ export const HomePage = () => {
                 </div>
 
                 <button
-                  onClick={() => agregarAlCarrito(prod, tonoActual)}
-                  className="mt-5 w-full bg-gray-950 text-white py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-rose-600 transition"
-                >
-                  <ShoppingBag size={14} />
-                  Añadir al Carrito
-                </button>
+               onClick={() => agregarAlCarrito(prod, tonoActual)}
+                 // Cambiamos justify-end por justify-center y text-xs por text-[10px]
+                  className="mt-5 w-full bg-gray-950 text-white py-3.5 rounded-xl text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-rose-600 transition"
+                  >
+                           {/* Redujimos el tamaño del icono de 20 a 16 */}
+                           <span>  </span>
+                           <ShoppingBag size={20} />
+                        <span>Añadir al Carrito  </span>
+                        <span> </span>
+                  </button>
+
               </div>
 
             </div>

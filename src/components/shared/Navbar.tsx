@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-
 import { supabase } from "../../supabase/client";
 import { Search, ShoppingBag, Menu, Settings, LogOut, User } from "lucide-react";
 interface NavbarProps {
@@ -32,27 +31,37 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
     window.location.href = "/";
   };
 
+  // Función para desplazar la página hacia arriba con efecto suave
+  const irArriba = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth", // "smooth" para desplazamiento suave, o "auto" para salto instantáneo
+    });
+  };
+
   return (
     <header className="border-b border-gray-100 bg-white sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
         
         {/* LOGO */}
-        <Link to="/" className="text-lg sm:text-xl font-black text-gray-900 uppercase tracking-tight">
-          ISABELLA <span className="font-light text-rose-400">SANDOVAL</span>
+        <Link to="/" onClick={irArriba} className="text-lg sm:text-xl font-black text-violet-400 uppercase tracking-tight">
+          ISABELLA <span  className="font-bold text-violet-400">SANDOVAL </span><span   className="font-bold text-[10px] text-violet-400" >makeup </span>
         </Link>
 
         {/* CONTROLES DE LA DERECHA */}
         <div className="flex items-center gap-4 sm:gap-5">
+
+          {/* BOTÓN DE BÚSQUEDA O LUPA */}
           
-          <button className="text-gray-900 hover:text-rose-500 transition">
+          <button className="text-white hover:text-rose-500 transition">
             <Search size={20} />
           </button>
           
           {/* MENÚ DESPLEGABLE ADMINISTRADOR (POPOVER) */}
           {/* BOTÓN DE USUARIO / MENÚ DESPLEGABLE ADMINISTRADOR */}
           <div className="relative">
-            {isAdmin ? (
-              <>
+            {isAdmin ?  (  
+              <> {console.log("Usuario Administrador Activo")}
                 {/* Botón Avatar */}
                 <button 
                   onClick={() => setMenuAdminAbierto(!menuAdminAbierto)}
@@ -91,8 +100,8 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
                   </div>
                 )}
               </>
-            ) : (
-              /* Botón de acceso al login para cuando NO hay sesión iniciada */
+            ): (
+              /* Botón de acceso al login para cuando NO hay sesión iniciada */ 
               <Link to="/login" className="text-gray-900 hover:text-rose-500 transition flex items-center">
                 <User size={20} />
               </Link>

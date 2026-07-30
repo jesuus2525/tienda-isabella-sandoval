@@ -12,7 +12,6 @@ export const RootLayout = () => {
   const agregarAlCarrito = (producto: any, tonoSeleccionado: string) => {
     const idCarrito = `${producto.id}-${tonoSeleccionado}`;
     const existente = carrito.find((item) => item.idCarrito === idCarrito);
-
     if (existente) {
       setCarrito(
         carrito.map((item) =>

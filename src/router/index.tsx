@@ -6,7 +6,7 @@ import { AuthGuard } from "../components/shared/AuthGuard";
 export const router = createBrowserRouter([
     {
         path: "/",
-        element: <RootLayout />,
+        element: <RootLayout />,                                                                    
         children: [
             {
                 index: true,

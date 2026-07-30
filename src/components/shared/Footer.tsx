@@ -3,14 +3,21 @@ import { FaInstagram, FaTiktok, FaWhatsapp } from "react-icons/fa";
 import { FiChevronRight } from "react-icons/fi";
 
 export const Footer = () => {
+
+  const irArriba = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth", // "smooth" para desplazamiento suave, o "auto" para salto instantáneo
+    });
+  };
   return (
     <footer className="bg-gray-950 text-slate-200 py-16 px-5 md:px-12 mt-10 font-sans">
       <div className="container mx-auto flex flex-wrap justify-between gap-8 md:flex-nowrap">
         
         {/* Sección 1: Marca y Boletín */}
         <div className="flex-1 min-w-[250px] flex flex-col gap-4">
-          <Link to="/" className="text-2xl font-bold text-white tracking-wider">
-            ISABELLA <span className="text-rose-500 font-light">SANDOVAL</span>
+          <Link to="/" onClick={irArriba} className="text-2xl font-bold text-white tracking-wider">
+            ISABELLA <span className="text-violet-300 font-light">SANDOVAL</span>
           </Link>
           <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">
             Suscríbete a nuestro boletín
