@@ -76,7 +76,7 @@ export const HomePage = () => {
           </button>
         ))}
       </div>
-
+{/* cantidad de productos por fila*/}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-8">
         {productosFiltrados.map((prod) =>{
           
