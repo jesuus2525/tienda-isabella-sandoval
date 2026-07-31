@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../../supabase/client";
 import { useTheme } from "../../context/ThemeContext";
-import { ShoppingBag, Settings, LogOut, User, LayoutDashboard, Search} from "lucide-react";
+import { ShoppingBag, Settings, LogOut, User, LayoutDashboard } from "lucide-react";
 
 interface NavbarProps {
   cantidadCarrito: number;
@@ -26,14 +26,6 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
     window.location.href = "/";
   };
 
-  // Función para desplazar la página hacia arriba con efecto suave
-  const irArriba = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth", // "smooth" para desplazamiento suave, o "auto" para salto instantáneo
-    });
-  };
-
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all duration-300">
       
@@ -46,26 +38,30 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
 
       <div className="max-w-7xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between gap-4">
         
-        {/* LOGO */}
-        <Link to="/" onClick={irArriba} className="text-lg sm:text-xl font-black text-violet-400 uppercase tracking-tight">
-          ISABELLA <span  className="font-bold text-violet-400">SANDOVAL </span><span   className="font-bold text-[10px] text-violet-400" >makeup </span>
+        {/* LOGO Y NOMBRE */}
+        <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-3 group">
+          {config.logoUrl ? (
+            <img src={config.logoUrl} alt={config.nombreTienda} className="w-10 h-10 object-contain rounded-full" />
+          ) : (
+            <div className="w-9 h-9 rounded-full bg-rose-50 border border-rose-100 flex items-center justify-center font-black text-rose-500 text-sm">
+              {config.nombreTienda.charAt(0)}
+            </div>
+          )}
+          <div className="flex flex-col">
+            <span style={{ color: config.colorTextoNombre || "#111827" }} className="font-black text-base sm:text-xl tracking-tight uppercase group-hover:opacity-75 transition">
+              {config.nombreTienda}
+            </span>
+            {config.eslogan && (
+              <span className="text-[9px] font-bold text-gray-400 tracking-widest uppercase -mt-1">{config.eslogan}</span>
+            )}
+          </div>
         </Link>
 
-        {/* CONTROLES DE LA DERECHA */}
-        <div className="flex items-center gap-4 sm:gap-5">
-
-          {/* BOTÓN DE BÚSQUEDA O LUPA */}
-          
-          <button className="text-white hover:text-rose-500 transition">
-            <Search size={20} />
-          </button>
-          
-          {/* MENÚ DESPLEGABLE ADMINISTRADOR (POPOVER) */}
-          {/* BOTÓN DE USUARIO / MENÚ DESPLEGABLE ADMINISTRADOR */}
+        {/* ACCIONES DEL MENÚ */}
+        <div className="flex items-center gap-4 sm:gap-6">
           <div className="relative">
-            {isAdmin ?  (  
-              <> {console.log("Usuario Administrador Activo")}
-                {/* Botón Avatar */}
+            {isAdmin ? (
+              <>
                 <button 
                   onClick={() => setMenuAdminAbierto(!menuAdminAbierto)} 
                   className="flex items-center gap-2 bg-gray-900 text-white px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-rose-600 transition shadow-sm"
@@ -97,9 +93,8 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
                   </div>
                 )}
               </>
-            ): (
-              /* Botón de acceso al login para cuando NO hay sesión iniciada */ 
-              <Link to="/login" className="text-gray-900 hover:text-rose-500 transition flex items-center">
+            ) : (
+              <Link to="/login" className="text-gray-600 hover:text-rose-500 transition p-2">
                 <User size={20} />
               </Link>
             )}

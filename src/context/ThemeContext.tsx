@@ -15,14 +15,14 @@ export interface ConfigTienda {
 
 const configDefecto: ConfigTienda = {
   nombreTienda: "ISABELLA SANDOVAL",
-  eslogan: "Boutique & Cosméticos",
-  colorPrimario: "#f43f5e",
-  colorTextoNombre: "#111827",
+  eslogan: "makeup",
+  colorPrimario: "#d331a0",
+  colorTextoNombre: "#915fa8",
   colorFondoPagina: "#ffffff",
   colorFondoTarjeta: "#ffffff",
   tipoRubro: "cosmeticos",
-  logoUrl: "",
-  textoAnuncio: "⚡ ENVÍOS SEGUROS A TODO COLOMBIA | REGALO POR COMPRAS SUPERIORES A $80.000 ⚡",
+  logoUrl: "https://wcuvgpxitetgmdzyieim.supabase.co/storage/v1/object/public/productos/tienda/1785463603191_logo.png",
+  textoAnuncio: "⚡ ENVÍOS SEGUROS A TODO COLOMBIA | REGALO POR COMPRAS SUPERIORES A $160.000 ⚡",
   bannersPromocionales: [
     "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?q=80&w=1200&auto=format&fit=crop"
   ],
