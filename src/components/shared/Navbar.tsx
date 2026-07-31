@@ -1,30 +1,25 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../../supabase/client";
-import { Search, ShoppingBag, Menu, Settings, LogOut, User } from "lucide-react";
+import { useTheme } from "../../context/ThemeContext";
+import { ShoppingBag, Settings, LogOut, User, LayoutDashboard, Search} from "lucide-react";
+
 interface NavbarProps {
   cantidadCarrito: number;
   abrirCarrito: () => void;
 }
 
 export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
+  const { config } = useTheme();
   const [isAdmin, setIsAdmin] = useState(false);
   const [menuAdminAbierto, setMenuAdminAbierto] = useState(false);
 
-  // Verificamos en la base de datos si hay sesión activa
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setIsAdmin(!!session);
-    });
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAdmin(!!session);
-    });
-
+    supabase.auth.getSession().then(({ data: { session } }) => setIsAdmin(!!session));
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => setIsAdmin(!!session));
     return () => authListener.subscription.unsubscribe();
   }, []);
 
-  // Función para destruir el token y salir
   const cerrarSesion = async () => {
     await supabase.auth.signOut();
     setMenuAdminAbierto(false);
@@ -40,8 +35,16 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
   };
 
   return (
-    <header className="border-b border-gray-100 bg-white sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all duration-300">
+      
+      {/* BARRA SUPERIOR DE ANUNCIOS */}
+      {config.textoAnuncio && (
+        <div style={{ backgroundColor: config.colorPrimario }} className="text-white text-[10px] sm:text-xs font-bold uppercase tracking-widest py-2 px-4 text-center overflow-hidden">
+          <p className="animate-pulse">{config.textoAnuncio}</p>
+        </div>
+      )}
+
+      <div className="max-w-7xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between gap-4">
         
         {/* LOGO */}
         <Link to="/" onClick={irArriba} className="text-lg sm:text-xl font-black text-violet-400 uppercase tracking-tight">
@@ -64,39 +67,33 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
               <> {console.log("Usuario Administrador Activo")}
                 {/* Botón Avatar */}
                 <button 
-                  onClick={() => setMenuAdminAbierto(!menuAdminAbierto)}
-                  className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 transition shadow-sm border border-gray-200"
+                  onClick={() => setMenuAdminAbierto(!menuAdminAbierto)} 
+                  className="flex items-center gap-2 bg-gray-900 text-white px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-rose-600 transition shadow-sm"
                 >
-                  <img src="https://ui-avatars.com/api/?name=Admin+Isabella&background=f43f5e&color=fff" alt="Admin" className="w-full h-full rounded-full" />
+                  <LayoutDashboard size={14} />
+                  <span className="hidden md:inline">Admin</span>
                 </button>
 
-                {/* Ventana Flotante */}
+                {/* MENÚ DESPLEGABLE CON SESIÓN ACTIVA */}
                 {menuAdminAbierto && (
-                  <div className="absolute right-0 mt-3 w-64 sm:w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 p-2 z-50 animate-fade-in-up">
-                    <div className="flex items-center gap-3 p-3 mb-2 border-b border-gray-50">
-                      <img src="https://ui-avatars.com/api/?name=Admin+Isabella&background=f43f5e&color=fff" alt="Perfil" className="w-10 h-10 rounded-full" />
-                      <div>
-                        <h4 className="font-bold text-gray-900 text-sm">Administración</h4>
-                        <p className="text-xs text-gray-400">Tienda Isabella Sandoval</p>
-                      </div>
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-50 animate-fade-in-up">
+                    <div className="px-4 py-2 border-b border-gray-100 bg-gray-50/50">
+                      <p className="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Sesión Activa</p>
+                      <p className="text-xs font-extrabold text-gray-900 truncate">Administrador</p>
                     </div>
-                    <div className="space-y-1">
-                      <Link 
-                        to="/admin" 
-                        onClick={() => setMenuAdminAbierto(false)} 
-                        className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 rounded-xl transition"
-                      >
-                        <div className="p-1.5 bg-gray-100 rounded-full text-gray-900"><Settings size={18} /></div>
-                        Panel de Control
-                      </Link>
-                      <button 
-                        onClick={cerrarSesion} 
-                        className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-xl transition mt-2 border-t border-gray-50 pt-3"
-                      >
-                        <div className="p-1.5 bg-gray-100 rounded-full"><LogOut size={18} /></div>
-                        Cerrar sesión
-                      </button>
-                    </div>
+                    <Link 
+                      to="/admin" 
+                      onClick={() => setMenuAdminAbierto(false)} 
+                      className="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-rose-50 hover:text-rose-600 transition uppercase"
+                    >
+                      <Settings size={16} /> Panel de Control
+                    </Link>
+                    <button 
+                      onClick={cerrarSesion} 
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-red-600 hover:bg-red-50 transition uppercase border-t border-gray-50"
+                    >
+                      <LogOut size={16} /> Cerrar Sesión
+                    </button>
                   </div>
                 )}
               </>
@@ -108,21 +105,15 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
             )}
           </div>
 
-          {/* BOTÓN DEL CARRITO */}
-          <button onClick={abrirCarrito} className="relative text-gray-900 hover:text-rose-500 transition">
-            <ShoppingBag size={20} />
+          {/* CARRITO */}
+          <button onClick={abrirCarrito} className="relative p-2 text-gray-900 hover:text-rose-500 transition">
+            <ShoppingBag size={22} />
             {cantidadCarrito > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-rose-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-sm">
+              <span className="absolute top-0 right-0 bg-rose-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-md animate-bounce">
                 {cantidadCarrito}
               </span>
             )}
           </button>
-
-          {/* MENÚ HAMBURGUESA (MÓVIL) */}
-          <button className="text-gray-900 hover:text-rose-500 transition sm:hidden">
-            <Menu size={20} />
-          </button>
-
         </div>
       </div>
     </header>
