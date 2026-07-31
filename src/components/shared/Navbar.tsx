@@ -36,7 +36,7 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-4 h-16 sm:h-12 flex items-center justify-between gap-4">
         
         {/* LOGO Y NOMBRE */}
         <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-3 group">
