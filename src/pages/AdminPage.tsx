@@ -50,7 +50,8 @@ export const AdminPage = () => {
   const [esloganInput, setEsloganInput] = useState(config.eslogan);
   const [colorPrimarioInput, setColorPrimarioInput] = useState(config.colorPrimario);
   const [colorTextoNombreInput, setColorTextoNombreInput] = useState(config.colorTextoNombre || "#111827");
-  const [colorFondoPaginaInput, setColorFondoPaginaInput] = useState(config.colorFondoPagina || "#ffffff");
+  const [colorFondoPagina_admInput, setcolorFondoPagina_admInput] = useState(config.colorFondoPagina_adm || "#ffffff");
+  const [colorFondoCatalogoInput, setColorFondoCatalogoInput] = useState(config.colorFondoCatalogo || "#ffffff");
   const [colorFondoTarjetaInput, setColorFondoTarjetaInput] = useState(config.colorFondoTarjeta || "#ffffff");
   const [textoAnuncioInput, setTextoAnuncioInput] = useState(config.textoAnuncio);
   const [nuevoBannerUrl, setNuevoBannerUrl] = useState("");
@@ -222,7 +223,8 @@ export const AdminPage = () => {
     actualizarConfig({
       nombreTienda: nombreTiendaInput, eslogan: esloganInput,
       colorPrimario: colorPrimarioInput, colorTextoNombre: colorTextoNombreInput,
-      colorFondoPagina: colorFondoPaginaInput, colorFondoTarjeta: colorFondoTarjetaInput,
+      colorFondoPagina_adm: colorFondoPagina_admInput, colorFondoCatalogo: colorFondoCatalogoInput,
+      colorFondoTarjeta: colorFondoTarjetaInput,
       textoAnuncio: textoAnuncioInput
     });
     mostrarNotificacion("¡Diseño de tienda guardado!");
@@ -241,7 +243,7 @@ export const AdminPage = () => {
     });
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row relative" style={{ backgroundColor: config.colorFondoPagina || "#f9fafb" }}>
+    <div className="min-h-screen flex flex-col md:flex-row relative" style={{ backgroundColor: config.colorFondoPagina_adm || "#f9fafb" }}>
       
       {/* TOAST FLOTANTE */}
       {toast && (
@@ -565,11 +567,15 @@ export const AdminPage = () => {
                 </div>
                 <div>
                   <label className="text-[10px] font-bold uppercase text-gray-400 block mb-1">Fondo de Página</label>
-                  <input type="color" value={colorFondoPaginaInput} onChange={e => setColorFondoPaginaInput(e.target.value)} className="w-full h-10 rounded-xl cursor-pointer" />
+                  <input type="color" value={colorFondoPagina_admInput} onChange={e => setcolorFondoPagina_admInput(e.target.value)} className="w-full h-10 rounded-xl cursor-pointer" />
                 </div>
                 <div>
                   <label className="text-[10px] font-bold uppercase text-gray-400 block mb-1">Fondo Cuadros Tarjeta</label>
                   <input type="color" value={colorFondoTarjetaInput} onChange={e => setColorFondoTarjetaInput(e.target.value)} className="w-full h-10 rounded-xl cursor-pointer" />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold uppercase text-gray-400 block mb-1">Fondo Página Catálogo</label>
+                  <input type="color" value={colorFondoCatalogoInput} onChange={e => setColorFondoCatalogoInput(e.target.value)} className="w-full h-10 rounded-xl cursor-pointer" />
                 </div>
               </div>
               <button onClick={guardarPersonalizacion} className="w-full bg-rose-500 text-white py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-rose-600 transition">

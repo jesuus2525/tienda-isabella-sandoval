@@ -2,9 +2,11 @@ import { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import { ShoppingBag, X } from "lucide-react";
 import { supabase } from "../supabase/client";
+import { useTheme } from "../context/ThemeContext";
 
 export const HomePage = () => {
   const { agregarAlCarrito } = useOutletContext<any>();
+  const { config } = useTheme();
   const [productos, setProductos] = useState<any[]>([]);
   const [cargando, setCargando] = useState(true);
   const [tonosSeleccionados, setTonosSeleccionados] = useState<{ [key: number]: string }>({});
@@ -56,13 +58,19 @@ export const HomePage = () => {
   );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 space-y-12 relative">
+     
+    // 👇 1. Aplicamos el color de fondo general a toda la página
+    <div style={{ backgroundColor: config.colorFondoCatalogo || config.colorFondoCatalogo, minHeight: '100vh' }} className="pb-12 pt-6 transition-colors duration-300">
+      
+      <div className="max-w-7xl mx-auto px-4 space-y-12 relative">
+    
       
       <div className="text-center space-y-2 max-w-xl mx-auto">
         <h2 className="text-xs uppercase font-bold tracking-widest text-violet-600">Colección Exclusiva</h2>
         <h1 className="text-3xl font-black text-gray-900 tracking-tight uppercase sm:text-4xl">
           Realza tu Belleza Natural
         </h1>
+        
       </div>
 
      {/* Menú de Categorías (Filtros) */}
@@ -85,7 +93,7 @@ export const HomePage = () => {
           
           return ( (
           
-          <div key={prod.id} className="bg-white flex flex-col group border border-gray-100 rounded-2xl p-4 hover:shadow-xl transition-all duration-300 relative">
+          <div key={prod.id} className="bg-white flex flex-col group border border-gray-100 rounded-2xl p-2 hover:shadow-xl transition-all duration-300 relative">
               
               {/* 1. LA IMAGEN ABRE EL MODAL ("Ver Detalles") */}
               <div 
@@ -219,4 +227,5 @@ export const HomePage = () => {
       )}
     </div>
   );
-};
+  </div>
+)};
