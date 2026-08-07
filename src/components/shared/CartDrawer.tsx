@@ -52,9 +52,9 @@ export const CartDrawer = ({ carrito, setCarrito, isCarritoAbierto, cerrarCarrit
   // 4. Procesar el Pedido (Guardar en BD y abrir WhatsApp)
   const finalizarPedido = async () => {
     if (carrito.length === 0) return alert("El carrito está vacío");
-    if (!nombreCliente.trim() || !telefonoCliente.trim() || !direccionEnvio.trim()) {
+    /** if (!nombreCliente.trim() || !telefonoCliente.trim() || !direccionEnvio.trim()) {
       return alert("Por favor completa todos tus datos de envío.");
-    }
+    }**/
 
     setCargando(true);
     const numRef = `REF-${Math.floor(100000 + Math.random() * 900000)}`;
