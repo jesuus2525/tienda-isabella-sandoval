@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // <-- Agregamos useNavigate
 import { supabase } from "../../supabase/client";
 import { useTheme } from "../../context/ThemeContext";
-import { ShoppingBag, Settings, LogOut, User, LayoutDashboard } from "lucide-react";
+// <-- Agregamos Search y X a los iconos
+import { ShoppingBag, Settings, LogOut, User, LayoutDashboard, Search, X } from "lucide-react"; 
 
 interface NavbarProps {
   cantidadCarrito: number;
@@ -13,6 +14,11 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
   const { config } = useTheme();
   const [isAdmin, setIsAdmin] = useState(false);
   const [menuAdminAbierto, setMenuAdminAbierto] = useState(false);
+  
+  // --- NUEVOS ESTADOS PARA LA BÚSQUEDA ---
+  const [mostrarBuscador, setMostrarBuscador] = useState(false);
+  const [terminoBusqueda, setTerminoBusqueda] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setIsAdmin(!!session));
@@ -24,6 +30,17 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
     await supabase.auth.signOut();
     setMenuAdminAbierto(false);
     window.location.href = "/";
+  };
+
+  // --- FUNCIÓN QUE ENVÍA LA BÚSQUEDA A LA URL ---
+  const manejarBusqueda = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (terminoBusqueda.trim()) {
+      // Navega a inicio con el parámetro seguro en la URL
+      navigate(`/?buscar=${encodeURIComponent(terminoBusqueda.trim())}`);
+    } else {
+      navigate(`/`);
+    }
   };
 
   return (
@@ -39,7 +56,7 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
       <div className="max-w-7xl mx-auto px-4 h-16 sm:h-12 flex items-center justify-between gap-4">
         
         {/* LOGO Y NOMBRE */}
-        <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-3 group">
+        <Link to="/" onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setTerminoBusqueda(''); }} className="flex items-center gap-3 group">
           {config.logoUrl ? (
             <img src={config.logoUrl} alt={config.nombreTienda} className="w-10 h-10 object-contain rounded-full" />
           ) : (
@@ -57,8 +74,36 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
           </div>
         </Link>
 
-        {/* ACCIONES DEL MENÚ */}
-        <div className="flex items-center gap-4 sm:gap-6">
+        {/* CONTENEDOR DE BÚSQUEDA Y MENÚS */}
+        <div className="flex items-center gap-2 sm:gap-4">
+          
+          {/* --- BARRA DE BÚSQUEDA (Se expande con animación) --- */}
+          <form onSubmit={manejarBusqueda} className={`flex items-center transition-all duration-300 ${mostrarBuscador ? 'w-36 sm:w-56 opacity-100' : 'w-0 opacity-0 overflow-hidden'}`}>
+            <input 
+              type="text" 
+              placeholder="Buscar..." 
+              value={terminoBusqueda}
+              onChange={(e) => setTerminoBusqueda(e.target.value)}
+              pattern="[a-zA-Z0-9À-ÿ\s]+" // Protección Frontend: Solo acepta letras y números
+              title="Solo letras y números"
+              className="w-full px-4 py-1.5 text-xs font-bold uppercase rounded-full border border-gray-200 bg-gray-50 focus:outline-none focus:border-gray-900 transition"
+            />
+          </form>
+          
+          {/* BOTÓN LUPA */}
+          <button 
+            onClick={() => {
+              setMostrarBuscador(!mostrarBuscador);
+              if (mostrarBuscador) { setTerminoBusqueda(""); navigate('/'); } // Limpia si se cierra
+            }} 
+            className="p-2 text-gray-600 hover:text-rose-500 transition rounded-full hover:bg-rose-50"
+          >
+            {mostrarBuscador ? <X size={18} /> : <Search size={18} />}
+          </button>
+
+          {/* LÍNEA DIVISORIA */}
+          <div className="h-6 w-[1px] bg-gray-200 mx-1"></div>
+
           <div className="relative">
             {isAdmin ? (
               <>
@@ -70,7 +115,6 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
                   <span className="hidden md:inline">Admin</span>
                 </button>
 
-                {/* MENÚ DESPLEGABLE CON SESIÓN ACTIVA */}
                 {menuAdminAbierto && (
                   <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-50 animate-fade-in-up">
                     <div className="px-4 py-2 border-b border-gray-100 bg-gray-50/50">

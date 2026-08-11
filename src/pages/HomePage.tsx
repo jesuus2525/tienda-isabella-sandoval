@@ -3,7 +3,13 @@ import { useOutletContext } from "react-router-dom";
 import { ShoppingBag, X } from "lucide-react";
 import { supabase } from "../supabase/client";
 import { useTheme } from "../context/ThemeContext";
+import { useSearchParams } from "react-router-dom"; // <-- Agrega esto a tus importaciones
 
+// Listado de conectores y palabras vacías a ignorar en la búsqueda
+const CONECTORES = new Set([
+  "de", "del", "la", "el", "los", "las", "un", "una", "unos", "unas", 
+  "y", "o", "en", "con", "para", "por", "a", "al", "se", "su", "sus"
+]); 
 export const HomePage = () => {
   const { agregarAlCarrito } = useOutletContext<any>();
   const { config } = useTheme();
@@ -11,6 +17,8 @@ export const HomePage = () => {
   const [cargando, setCargando] = useState(true);
   const [tonosSeleccionados, setTonosSeleccionados] = useState<{ [key: number]: string }>({});
   const [categoriaActiva, setCategoriaActiva] = useState('Todos');
+  const [searchParams] = useSearchParams(); // <-- 1. Captura la URL
+  const terminoBusqueda = searchParams.get("buscar")?.toLowerCase() || ""; // <-- 2. Lee la palabra
   
   // NUEVO: Estado para controlar el Modal del producto
   const [productoModal, setProductoModal] = useState<any | null>(null);
@@ -41,9 +49,39 @@ export const HomePage = () => {
     ...categoriasExtraidas.filter(cat => cat !== 'Otros'), 
     ...(categoriasExtraidas.includes('Otros') ? ['Otros'] : [])
   ];
-  const productosFiltrados = categoriaActiva === 'Todos' 
-    ? productos 
-    : productos.filter(p => (p.categoria_producto || 'Otros') === categoriaActiva);
+  // 1. Extraemos y limpiamos las palabras clave (eliminando conectores)
+  const palabrasClave = terminoBusqueda
+    .trim()
+    .split(/\s+/) // Separa por espacios
+    .filter((palabra) => palabra.length > 1 && !CONECTORES.has(palabra));
+  // 3. Modifica tu filtro actual para que dé prioridad a la búsqueda
+  // 2. Filtrado e indexación por relevancia
+  const productosFiltrados = productos
+    .map((prod) => {
+      if (palabrasClave.length === 0) return { prod, coincidencia: 1 };
+
+      const textoBuscable = `${prod.nombre} ${prod.descripcion || ""} ${prod.categoria_producto || ""}`.toLowerCase();
+
+      // Cuenta cuántas palabras clave coinciden con el producto
+      const coincidencias = palabrasClave.reduce((acc, palabra) => {
+        return acc + (textoBuscable.includes(palabra) ? 1 : 0);
+      }, 0);
+
+      return { prod, coincidencia: coincidencias };
+    })
+    .filter((item) => {
+      // Si hay búsqueda, solo muestra si coincide al menos con 1 palabra
+      if (palabrasClave.length > 0) return item.coincidencia > 0;
+
+      // Si no hay búsqueda, aplica el filtro de categoría normal
+      if (categoriaActiva === "Todos") return true;
+      return item.prod.categoria_producto === categoriaActiva;
+    })
+    // Ordena los productos para que aparezcan primero los que coinciden con más palabras
+    .sort((a, b) => b.coincidencia - a.coincidencia)
+    .map((item) => item.prod);
+
+    /* este es el filtro de productos filtrados */
 
   // Filtramos recomendaciones (Misma categoría, excluyendo el producto actual, máximo 4)
   const productosRecomendados = productoModal 
