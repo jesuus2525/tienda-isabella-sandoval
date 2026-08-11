@@ -5,6 +5,7 @@ import { supabase } from "../supabase/client";
 import { useTheme } from "../context/ThemeContext";
 import { useSearchParams } from "react-router-dom"; // <-- Agrega esto a tus importaciones
 
+
 // Listado de conectores y palabras vacías a ignorar en la búsqueda
 const CONECTORES = new Set([
   "de", "del", "la", "el", "los", "las", "un", "una", "unos", "unas", 
@@ -105,7 +106,7 @@ export const HomePage = () => {
       
       <div className="text-center space-y-2 max-w-xl mx-auto">
         <h2 className="text-xs uppercase font-bold tracking-widest text-violet-600">Colección Exclusiva</h2>
-        <h1 className="text-3xl font-black text-gray-900 tracking-tight uppercase sm:text-4xl">
+        <h1 className="text-3xl font-black text-violet-800 tracking-tight uppercase sm:text-4xl">
           Realza tu Belleza Natural
         </h1>
         
@@ -123,7 +124,9 @@ export const HomePage = () => {
         ))}
       </div>
 {/* cantidad de productos por fila*/}
+{productosFiltrados.length > 0 || terminoBusqueda == "" ? (
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-8">
+        
         {productosFiltrados.map((prod) =>{
           
           // 👇 AQUÍ DEBE IR LA CONSTANTE, DENTRO DEL MAP 👇
@@ -190,8 +193,29 @@ export const HomePage = () => {
               </div>
 
             </div>
-        ))})}
-      </div>
+        )) })}
+      </div> 
+
+) : (
+  // 👇 ESTE ES EL MENSAJE DE "NO ENCONTRADO" 👇
+  <div className="flex flex-col items-center justify-center py-16 px-4 text-center w-full">
+    {/* Puedes usar el icono de SearchX de lucide-react si lo importas arriba */}
+    <div className="bg-gray-100 p-4 rounded-full mb-4">
+      <X size={32} className="text-gray-400" />
+    </div>
+    
+    <h3 className="text-xl sm:text-2xl font-black text-gray-900 uppercase tracking-tight mb-2">
+      No hay resultados
+    </h3>
+    
+    <p className="text-sm font-medium text-gray-500 max-w-md mx-auto">
+      {terminoBusqueda 
+        ? `No pudimos encontrar coincidencias para "${terminoBusqueda}". Intenta comprobando la ortografía o buscando con términos más generales.` 
+        : `En este momento no tenemos productos disponibles en la categoría "${categoriaActiva}".`
+      }
+    </p>
+  </div>
+)}
 
       {/* MODAL ESTILO JULIETA MAKEUP */}
       {productoModal && (

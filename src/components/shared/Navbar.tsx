@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom"; // <-- Agregamos useNavigate
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../../supabase/client";
 import { useTheme } from "../../context/ThemeContext";
-// <-- Agregamos Search y X a los iconos
 import { ShoppingBag, Settings, LogOut, User, LayoutDashboard, Search, X } from "lucide-react"; 
 
 interface NavbarProps {
@@ -15,7 +14,6 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [menuAdminAbierto, setMenuAdminAbierto] = useState(false);
   
-  // --- NUEVOS ESTADOS PARA LA BÚSQUEDA ---
   const [mostrarBuscador, setMostrarBuscador] = useState(false);
   const [terminoBusqueda, setTerminoBusqueda] = useState("");
   const navigate = useNavigate();
@@ -32,11 +30,9 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
     window.location.href = "/";
   };
 
-  // --- FUNCIÓN QUE ENVÍA LA BÚSQUEDA A LA URL ---
   const manejarBusqueda = (e: React.FormEvent) => {
     e.preventDefault();
     if (terminoBusqueda.trim()) {
-      // Navega a inicio con el parámetro seguro en la URL
       navigate(`/?buscar=${encodeURIComponent(terminoBusqueda.trim())}`);
     } else {
       navigate(`/`);
@@ -46,7 +42,6 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all duration-300">
       
-      {/* BARRA SUPERIOR DE ANUNCIOS */}
       {config.textoAnuncio && (
         <div style={{ backgroundColor: config.colorPrimario }} className="text-white text-[10px] sm:text-xs font-bold uppercase tracking-widest py-2 px-4 text-center overflow-hidden">
           <p className="animate-pulse">{config.textoAnuncio}</p>
@@ -56,7 +51,12 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
       <div className="max-w-7xl mx-auto px-4 h-16 sm:h-12 flex items-center justify-between gap-4">
         
         {/* LOGO Y NOMBRE */}
-        <Link to="/" onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setTerminoBusqueda(''); }} className="flex items-center gap-3 group">
+        {/* 👇 Ajuste 1: Si mostrarBuscador es true, en móviles (hidden sm:flex) el logo desaparece para dar espacio */}
+        <Link 
+          to="/" 
+          onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setTerminoBusqueda(''); setMostrarBuscador(false); }} 
+          className={`items-center gap-3 group transition-all duration-300 ${mostrarBuscador ? 'hidden sm:flex' : 'flex'}`}
+        >
           {config.logoUrl ? (
             <img src={config.logoUrl} alt={config.nombreTienda} className="w-10 h-10 object-contain rounded-full" />
           ) : (
@@ -65,46 +65,62 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
             </div>
           )}
           <div className="flex flex-col">
-            <span style={{ color: config.colorTextoNombre || "#111827" }} className="font-black text-base sm:text-xl tracking-tight uppercase group-hover:opacity-75 transition">
+            <span style={{ color: config.colorTextoNombre || "#111827" }} className="font-black text-base sm:text-xl tracking-tight uppercase group-hover:opacity-75 transition truncate max-w-[150px] sm:max-w-full">
               {config.nombreTienda}
             </span>
             {config.eslogan && (
-              <span className="text-[9px] font-bold text-gray-400 tracking-widest uppercase -mt-1">{config.eslogan}</span>
+              <span className="text-[9px] font-bold text-gray-400 tracking-widest uppercase -mt-1 truncate">{config.eslogan}</span>
             )}
           </div>
         </Link>
 
-        {/* CONTENEDOR DE BÚSQUEDA Y MENÚS */}
-        <div className="flex items-center gap-2 sm:gap-4">
+        {/* CONTENEDOR DERECHO (Búsqueda + Iconos) */}
+        {/* 👇 Ajuste 2: Hacemos que ocupe todo el ancho (w-full) en móviles si el buscador está abierto */}
+        <div className={`flex items-center gap-2 sm:gap-4 transition-all duration-300 ${mostrarBuscador ? 'w-full sm:w-auto justify-end' : ''}`}>
           
-          {/* --- BARRA DE BÚSQUEDA (Se expande con animación) --- */}
-          <form onSubmit={manejarBusqueda} className={`flex items-center transition-all duration-300 ${mostrarBuscador ? 'w-36 sm:w-56 opacity-100' : 'w-0 opacity-0 overflow-hidden'}`}>
-            <input 
-              type="text" 
-              placeholder="Buscar..." 
-              value={terminoBusqueda}
-              onChange={(e) => setTerminoBusqueda(e.target.value)}
-              pattern="[a-zA-Z0-9À-ÿ\s]+" // Protección Frontend: Solo acepta letras y números
-              title="Solo letras y números"
-              className="w-full px-4 py-1.5 text-xs font-bold uppercase rounded-full border border-gray-200 bg-gray-50 focus:outline-none focus:border-gray-900 transition"
-            />
+          {/* BARRA DE BÚSQUEDA */}
+          <form onSubmit={manejarBusqueda} className={`flex items-center transition-all duration-300 ${mostrarBuscador ? 'w-full sm:w-64 opacity-100' : 'w-0 opacity-0 overflow-hidden'}`}>
+            <div className="relative w-full">
+              <input 
+                type="text" 
+                placeholder="Buscar..." 
+                value={terminoBusqueda}
+                onChange={(e) => setTerminoBusqueda(e.target.value)}
+                pattern="[a-zA-Z0-9À-ÿ\s]+" 
+                title="Solo letras y números"
+                autoFocus={mostrarBuscador}
+                // Damos espacio extra a la derecha (pr-10) para que el texto no pise el botón
+                className="w-full pl-4 pr-10 py-1.5 text-xs font-bold uppercase rounded-full border border-gray-200 bg-gray-50 focus:outline-none focus:border-rose-400 transition shadow-inner"
+              />
+              
+              {/* 👇 Ajuste 3: Botón de "Buscar" incrustado dentro del input (Aparece solo si hay texto) */}
+              {terminoBusqueda && (
+                <button 
+                  type="submit"
+                  title="Realizar búsqueda"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 p-1.5 bg-rose-500 text-white rounded-full hover:bg-rose-600 transition shadow-sm"
+                >
+                  <Search size={12} strokeWidth={3} />
+                </button>
+              )}
+            </div>
           </form>
           
-          {/* BOTÓN LUPA */}
+          {/* BOTÓN EXTERNO: ABRIR (Lupa) o CERRAR (X) */}
           <button 
             onClick={() => {
               setMostrarBuscador(!mostrarBuscador);
-              if (mostrarBuscador) { setTerminoBusqueda(""); navigate('/'); } // Limpia si se cierra
+              if (mostrarBuscador) { setTerminoBusqueda(""); navigate('/'); }
             }} 
-            className="p-2 text-gray-600 hover:text-rose-500 transition rounded-full hover:bg-rose-50"
+            className="p-2 text-gray-600 hover:text-rose-500 transition rounded-full hover:bg-rose-50 shrink-0"
           >
-            {mostrarBuscador ? <X size={18} /> : <Search size={18} />}
+            {mostrarBuscador ? <X size={20} /> : <Search size={20} />}
           </button>
 
-          {/* LÍNEA DIVISORIA */}
-          <div className="h-6 w-[1px] bg-gray-200 mx-1"></div>
+          {/* LÍNEA DIVISORIA (Se oculta en móvil si el buscador está abierto para ahorrar espacio) */}
+          <div className={`h-6 w-[1px] bg-gray-200 mx-1 ${mostrarBuscador ? 'hidden sm:block' : 'block'}`}></div>
 
-          <div className="relative">
+          <div className={`relative ${mostrarBuscador ? 'hidden sm:block' : 'block'}`}>
             {isAdmin ? (
               <>
                 <button 
@@ -144,8 +160,8 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
             )}
           </div>
 
-          {/* CARRITO */}
-          <button onClick={abrirCarrito} className="relative p-2 text-gray-900 hover:text-rose-500 transition">
+          {/* CARRITO (Lo mantenemos visible siempre porque es lo más importante en la tienda) */}
+          <button onClick={abrirCarrito} className="relative p-2 text-gray-900 hover:text-rose-500 transition shrink-0">
             <ShoppingBag size={22} />
             {cantidadCarrito > 0 && (
               <span className="absolute top-0 right-0 bg-rose-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-md animate-bounce">
