@@ -107,15 +107,22 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
           </form>
           
           {/* BOTÓN EXTERNO: ABRIR (Lupa) o CERRAR (X) */}
-          <button 
-            onClick={() => {
-              setMostrarBuscador(!mostrarBuscador);
-              if (mostrarBuscador) { setTerminoBusqueda(""); navigate('/'); }
-            }} 
-            className="p-2 text-gray-600 hover:text-rose-500 transition rounded-full hover:bg-rose-50 shrink-0"
-          >
-            {mostrarBuscador ? <X size={20} /> : <Search size={20} />}
-          </button>
+         <button 
+  onClick={() => {
+    // Si está abierto, al hacer clic se va a cerrar -> Quitamos el teclado
+    if (mostrarBuscador) { 
+      setTerminoBusqueda(""); 
+      navigate('/'); 
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur(); // Cierra el teclado móvil
+      }
+    }
+    setMostrarBuscador(!mostrarBuscador);
+  }} 
+  className="p-2 text-gray-600 hover:text-rose-500 transition rounded-full hover:bg-rose-50 shrink-0"
+>
+  {mostrarBuscador ? <X size={20} /> : <Search size={20} />}
+</button>
 
           {/* LÍNEA DIVISORIA (Se oculta en móvil si el buscador está abierto para ahorrar espacio) */}
           <div className={`h-6 w-[1px] bg-gray-200 mx-1 ${mostrarBuscador ? 'hidden sm:block' : 'block'}`}></div>
