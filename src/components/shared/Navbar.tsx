@@ -32,6 +32,9 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
 
   const manejarBusqueda = (e: React.FormEvent) => {
     e.preventDefault();
+    if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur(); 
+  }
     if (terminoBusqueda.trim()) {
       navigate(`/?buscar=${encodeURIComponent(terminoBusqueda.trim())}`);
     } else {
