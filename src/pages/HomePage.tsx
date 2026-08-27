@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
-import { ShoppingBag, X } from "lucide-react";
+import { ShoppingBag, X, ShoppingCart } from "lucide-react";
 import { supabase } from "../supabase/client";
 import { useTheme } from "../context/ThemeContext";
 import { useSearchParams } from "react-router-dom"; // <-- Agrega esto a tus importaciones
@@ -23,7 +23,10 @@ export const HomePage = () => {
   
   // NUEVO: Estado para controlar el Modal del producto
   const [productoModal, setProductoModal] = useState<any | null>(null);
-
+  // 👇 NUEVOS ESTADOS PARA COMPRA DIRECTA 👇
+  const [compraDirecta, setCompraDirecta] = useState<{producto: any, tono: string} | null>(null);
+  const [datosCliente, setDatosCliente] = useState({ nombre: '', telefono: '', direccion: '' });
+  const [cargandoCompra, setCargandoCompra] = useState(false);
   useEffect(() => {
     const obtenerProductos = async () => {
       const { data } = await supabase.from("productos").select("*");
@@ -144,7 +147,7 @@ export const HomePage = () => {
                 <img src={prod.imagen} alt={prod.nombre} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition flex items-center justify-center">
                   <span className="opacity-0 group-hover:opacity-100 bg-white text-gray-900 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider transition shadow-sm">
-                    Ver Detalles
+                    Ver Detalles  
                   </span>
                 </div>
               </div>
@@ -181,15 +184,29 @@ export const HomePage = () => {
                 <button
                onClick={() => agregarAlCarrito(prod, tonoActual)}
                  // Cambiamos justify-end por justify-center y text-xs por text-[10px]
-                  className="mt-5 w-full bg-gray-950 text-white py-3.5 rounded-xl text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-rose-600 transition"
+                  className="mt-5 w-full bg-gray-400 text-white py-3.5 rounded-xl text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-rose-600 transition"
                   >
                            {/* Redujimos el tamaño del icono de 20 a 16 */}
                            <span>  </span>
-                           <ShoppingBag size={20} />
+                           <ShoppingCart size={20} />
                         <span>Añadir al Carrito  </span>
                         <span> </span>
                   </button>
 
+                  <button
+  onClick={() => {
+    // 1. Aquí no necesitamos el escudo, pasamos directamente 'prod' y 'tonoActual'
+    setCompraDirecta({ 
+      producto: prod, 
+      tono: tonoActual 
+    });
+  }}
+  className="mt-2 w-full bg-rose-500 text-white py-3.5 rounded-xl text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-rose-600 transition shadow-md shadow-rose-200"
+>
+  <ShoppingBag size={16} />
+  <span>Comprar ahora</span>
+</button>
+                      
               </div>
 
             </div>
@@ -217,7 +234,7 @@ export const HomePage = () => {
   </div>
 )}
 
-      {/* MODAL ESTILO JULIETA MAKEUP */}
+      {/* MODAL DE VISTA PREVIA DETALLADA POR PRODUCTO */}
       {productoModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm transition-opacity">
           <div className="bg-white rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl relative animate-fade-in-up">
@@ -262,9 +279,22 @@ export const HomePage = () => {
                     }}
                     className="mt-5 w-full bg-gray-950 text-white py-3.5 px-4 rounded-xl text-xs font-bold uppercase tracking-widest flex flex-row items-center justify-center hover:bg-rose-600 transition"
                   >
-                    <ShoppingBag size={16} className="shrink-0 mr-2" />
+                    <ShoppingCart size={16} className="shrink-0 mr-2" />
                   <span>Añadir al Carrito</span>
                 </button>
+                <button
+  onClick={() => {
+    // 1. Aquí no necesitamos el escudo, pasamos directamente 'prod' y 'tonoActual'
+    setCompraDirecta({ 
+      producto: productoModal, 
+      tono: tonosSeleccionados[productoModal.id] 
+    });
+  }}
+  className="mt-2 w-full bg-rose-500 text-white py-3.5 rounded-xl text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-rose-600 transition shadow-md shadow-rose-200"
+>
+  <ShoppingBag size={16} />
+  <span>Comprar ahora</span>
+</button>
                 </div>
               </div>
 
@@ -284,6 +314,156 @@ export const HomePage = () => {
               </div>
             )}
 
+          </div>
+        </div>
+      )} {/* MODAL DE COMPRA DIRECTA (CHECKOUT EXPRESS) */}
+      {compraDirecta && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/70 backdrop-blur-sm transition-opacity">
+          <div className="bg-white rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl relative animate-fade-in-up p-6 md:p-8">
+            
+            <button onClick={() => setCompraDirecta(null)} className="absolute top-4 right-4 p-2 bg-gray-100 rounded-full hover:bg-rose-100 hover:text-rose-600 transition z-10">
+              <X size={20} />
+            </button>
+            {/* titulo del Resumen del Producto */}  
+            <div className="text-center mb-6">
+              <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight">Compra Rápida</h2>
+              <p className="text-xs text-gray-500 mt-1">Completa tus datos para coordinar el envío</p>
+            </div>
+
+            {/* Resumen del Producto */}
+            {/* Resumen del Producto (Ahora es interactivo) */}
+            <div 
+              onClick={() => {
+                setCompraDirecta(null); // 1. Cerramos la ventana de compra rápida
+                setProductoModal(compraDirecta.producto); // 2. Abrimos los detalles completos
+              }}
+              className="flex gap-4 items-center bg-gray-50 p-4 rounded-2xl border border-gray-100 mb-6 cursor-pointer hover:bg-gray-100 hover:shadow-md transition-all group"
+            >
+              <div className="relative overflow-hidden w-16 h-16 rounded-xl shrink-0">
+                <img 
+                  src={compraDirecta.producto.imagen} 
+                  alt={compraDirecta.producto.nombre} 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition flex items-center justify-center">
+                  <span className="opacity-0 group-hover:opacity-100 bg-white text-gray-900 text-[8px] font-bold px-2 py-1 rounded-full uppercase tracking-wider transition shadow-sm">
+                    Ver
+                  </span>
+                </div>
+              </div>
+              <div>
+                <h3 className="font-bold text-xs uppercase text-gray-900 group-hover:text-rose-500 transition-colors">{compraDirecta.producto.nombre}</h3>
+                <p className="text-[10px] text-gray-500 font-semibold uppercase mt-0.5">Tono: {compraDirecta.tono || 'Único'}</p>
+                <p className="font-black text-rose-500 text-sm mt-1">${compraDirecta.producto.precio.toLocaleString('es-CO')}</p>
+              </div>
+            </div>
+
+            {/* Formulario de Datos */}
+            <div className="space-y-4">
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400 ml-1">Nombre Completo</label>
+                <input 
+                  type="text" 
+                  value={datosCliente.nombre}
+                  onChange={(e) => setDatosCliente({...datosCliente, nombre: e.target.value})}
+                  className="w-full mt-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-900 focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400 transition"
+                  placeholder="Ej: María Pérez"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400 ml-1">Teléfono (WhatsApp)</label>
+                <input 
+                  type="tel" 
+                  value={datosCliente.telefono}
+                  onChange={(e) => setDatosCliente({...datosCliente, telefono: e.target.value})}
+                  className="w-full mt-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-900 focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400 transition"
+                  placeholder="Ej: 300 123 4567"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400 ml-1">Dirección de Envío</label>
+                <input 
+                  type="text" 
+                  value={datosCliente.direccion}
+                  onChange={(e) => setDatosCliente({...datosCliente, direccion: e.target.value})}
+                  className="w-full mt-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-900 focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400 transition"
+                  placeholder="Ej: Calle 123 # 45-67, Barrio X"
+                />
+              </div>
+            </div>
+
+            {/* Mensaje de Aviso */}
+            <div className="mt-6 bg-blue-50 text-blue-800 p-3.5 rounded-xl border border-blue-100 text-[10px] text-center font-medium leading-relaxed">
+              Al confirmar, se abrirá WhatsApp. <strong>Pronto un asesor te contactará</strong> por allí para confirmar el pago y entregar los detalles de tu envío.
+            </div>
+
+           
+
+{/* Botón Enviar con conexión a BD */}
+            <button
+              onClick={async () => {
+                
+                /*
+                if(!datosCliente.nombre || !datosCliente.telefono || !datosCliente.direccion) {
+                  alert("Por favor, completa todos los campos para poder realizar el envío.");
+                  return;
+                }*/
+
+                setCargandoCompra(true);
+                const numRef = `REF-${Math.floor(100000 + Math.random() * 900000)}`;
+
+                try {
+                  // 1. Guardar en Supabase simulando la estructura del carrito
+                  const { error } = await supabase.from("pedidos").insert([
+                    {
+                      num_ref: numRef,
+                      // Convertimos el producto en un arreglo para que la BD lo lea igual que un carrito
+                      pedido_detallado: [{
+                        ...compraDirecta.producto,
+                        cantidad: 1,
+                        tonoSeleccionado: compraDirecta.tono || 'Único'
+                      }],
+                      precio_total: compraDirecta.producto.precio,
+                      cliente_nombre: datosCliente.nombre,
+                      cliente_telefono: datosCliente.telefono,
+                      direccion_envio: datosCliente.direccion,
+                      estado: "En espera",
+                    },
+                  ]);
+
+                  if (error) throw error;
+
+                  // 2. Formatear mensaje de WhatsApp con la referencia
+                  const numeroAdmin = "573012970476"; // <--- RECUERDA CAMBIAR ESTE NÚMERO
+                  const mensaje = `¡Hola! Quiero hacer una compra directa. \n\n` +
+                                  ` *Referencia:* ${numRef}\n` +
+                                  `*Producto:* ${compraDirecta.producto.nombre}\n` +
+                                  `*Tono:* ${compraDirecta.tono || 'Único'}\n` +
+                                  `*Total a Pagar:* $${compraDirecta.producto.precio.toLocaleString('es-CO')}\n\n` +
+                                  `📍 *Mis Datos para Envío:*\n` +
+                                  `- Nombre: ${datosCliente.nombre}\n` +
+                                  `- Teléfono: ${datosCliente.telefono}\n` +
+                                  `- Dirección: ${datosCliente.direccion}\n\n` +
+                                  `Quedo atento(a) para confirmar detalles y pago.`;
+                  
+                  // 3. Abrir WhatsApp, limpiar el formulario y cerrar el modal
+                  window.open(`https://wa.me/${numeroAdmin}?text=${encodeURIComponent(mensaje)}`, '_blank');
+                  setDatosCliente({ nombre: '', telefono: '', direccion: '' });
+                  setCompraDirecta(null); 
+                  
+                } catch (err) {
+                  alert("Hubo un error al registrar el pedido. Intenta nuevamente.");
+                } finally {
+                  setCargandoCompra(false);
+                }
+              }}
+              disabled={cargandoCompra}
+              className="mt-4 w-full bg-emerald-500 text-white py-4 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-emerald-600 transition shadow-lg shadow-emerald-200 disabled:bg-gray-400"
+            >
+              {cargandoCompra ? "Registrando..." : "Confirmar Pedido y Abrir WhatsApp"}
+            </button>
+
+            
           </div>
         </div>
       )}

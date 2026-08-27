@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../../supabase/client";
 import { useTheme } from "../../context/ThemeContext";
-import { ShoppingBag, Settings, LogOut, User, LayoutDashboard, Search, X } from "lucide-react"; 
+import { ShoppingCart, Settings, LogOut, User, LayoutDashboard, Search, X } from "lucide-react"; 
 
 interface NavbarProps {
   cantidadCarrito: number;
@@ -18,6 +18,7 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
   const [terminoBusqueda, setTerminoBusqueda] = useState("");
   const navigate = useNavigate();
 
+ 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setIsAdmin(!!session));
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => setIsAdmin(!!session));
@@ -32,6 +33,10 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
 
   const manejarBusqueda = (e: React.FormEvent) => {
     e.preventDefault();
+      if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur(); 
+  }
+
     if (terminoBusqueda.trim()) {
       navigate(`/?buscar=${encodeURIComponent(terminoBusqueda.trim())}`);
     } else {
@@ -86,8 +91,10 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
                 placeholder="Buscar..." 
                 value={terminoBusqueda}
                 onChange={(e) => setTerminoBusqueda(e.target.value)}
+
                 pattern="[a-zA-Z0-9À-ÿ\s]+" 
                 title="Solo letras y números"
+                
                 autoFocus={mostrarBuscador}
                 // Damos espacio extra a la derecha (pr-10) para que el texto no pise el botón
                 className="w-full pl-4 pr-10 py-1.5 text-xs font-bold uppercase rounded-full border border-gray-200 bg-gray-50 focus:outline-none focus:border-rose-400 transition shadow-inner"
@@ -106,16 +113,23 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
             </div>
           </form>
           
-          {/* BOTÓN EXTERNO: ABRIR (Lupa) o CERRAR (X) */}
-          <button 
-            onClick={() => {
-              setMostrarBuscador(!mostrarBuscador);
-              if (mostrarBuscador) { setTerminoBusqueda(""); navigate('/'); }
-            }} 
-            className="p-2 text-gray-600 hover:text-rose-500 transition rounded-full hover:bg-rose-50 shrink-0"
-          >
-            {mostrarBuscador ? <X size={20} /> : <Search size={20} />}
-          </button>
+         {/* BOTÓN EXTERNO: ABRIR (Lupa) o CERRAR (X) */}
+<button 
+  onClick={() => {
+    // Si está abierto, al hacer clic se va a cerrar -> Quitamos el teclado
+    if (mostrarBuscador) { 
+      setTerminoBusqueda(""); 
+      navigate('/'); 
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur(); // Cierra el teclado móvil
+      }
+    }
+    setMostrarBuscador(!mostrarBuscador);
+  }} 
+  className="p-2 text-gray-600 hover:text-rose-500 transition rounded-full hover:bg-rose-50 shrink-0"
+>
+  {mostrarBuscador ? <X size={20} /> : <Search size={20} />}
+</button>
 
           {/* LÍNEA DIVISORIA (Se oculta en móvil si el buscador está abierto para ahorrar espacio) */}
           <div className={`h-6 w-[1px] bg-gray-200 mx-1 ${mostrarBuscador ? 'hidden sm:block' : 'block'}`}></div>
@@ -162,7 +176,7 @@ export const Navbar = ({ cantidadCarrito, abrirCarrito }: NavbarProps) => {
 
           {/* CARRITO (Lo mantenemos visible siempre porque es lo más importante en la tienda) */}
           <button onClick={abrirCarrito} className="relative p-2 text-gray-900 hover:text-rose-500 transition shrink-0">
-            <ShoppingBag size={22} />
+            <ShoppingCart size={22} />
             {cantidadCarrito > 0 && (
               <span className="absolute top-0 right-0 bg-rose-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-md animate-bounce">
                 {cantidadCarrito}

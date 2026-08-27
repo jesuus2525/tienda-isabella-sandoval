@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Trash2, ShoppingBag, Send, Plus, Minus } from "lucide-react";
+import { X, Trash2, Send, Plus, Minus ,ShoppingCart} from "lucide-react";
 import { supabase } from "../../supabase/client"; // Asegúrate de que la ruta sea correcta
 
 interface CartDrawerProps {
@@ -111,7 +111,7 @@ export const CartDrawer = ({ carrito, setCarrito, isCarritoAbierto, cerrarCarrit
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           {carrito.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-gray-400 space-y-3">
-              <ShoppingBag size={40} className="text-gray-200" />
+              <ShoppingCart size={40} className="text-gray-200" />
               <p className="text-xs font-semibold tracking-widest uppercase text-gray-400">El carrito está vacío</p>
             </div>
           ) : (
@@ -189,7 +189,7 @@ export const CartDrawer = ({ carrito, setCarrito, isCarritoAbierto, cerrarCarrit
             
             <button onClick={finalizarPedido} disabled={cargando}
               className="w-full bg-emerald-600 text-white py-4 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-emerald-700 transition shadow-lg shadow-emerald-100 rounded-xl disabled:bg-gray-300">
-              <Send size={16} /> {cargando ? "Registrando..." : "Enviar a WhatsApp"}
+              <Send size={16} /> {cargando ? "Registrando..." : "Generar Pedido y Abrir WhatsApp"}
             </button>
           </div>
         )}
