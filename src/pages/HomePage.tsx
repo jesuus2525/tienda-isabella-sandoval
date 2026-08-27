@@ -146,7 +146,7 @@ export const HomePage = () => {
               >
                 <img src={prod.imagen} alt={prod.nombre} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition flex items-center justify-center">
-                  <span className="opacity-0 group-hover:opacity-100 bg-white text-gray-900 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider transition shadow-sm">
+                  <span className="opacity-0 group-hover:opacity-100 bg-white text-gray-800 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider transition shadow-sm">
                     Ver Detalles  
                   </span>
                 </div>
@@ -277,7 +277,7 @@ export const HomePage = () => {
                       agregarAlCarrito(productoModal, tonosSeleccionados[productoModal.id]);
                       setProductoModal(null); // Cierra el modal tras agregar
                     }}
-                    className="mt-5 w-full bg-gray-950 text-white py-3.5 px-4 rounded-xl text-xs font-bold uppercase tracking-widest flex flex-row items-center justify-center hover:bg-rose-600 transition"
+                    className="mt-5 w-full bg-gray-400 text-white py-3.5 px-4 rounded-xl text-xs font-bold uppercase tracking-widest flex flex-row items-center justify-center hover:bg-rose-600 transition"
                   >
                     <ShoppingCart size={16} className="shrink-0 mr-2" />
                   <span>Añadir al Carrito</span>
@@ -321,11 +321,17 @@ export const HomePage = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/70 backdrop-blur-sm transition-opacity">
           <div className="bg-white rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl relative animate-fade-in-up p-6 md:p-8">
             
-            <button onClick={() => setCompraDirecta(null)} className="absolute top-4 right-4 p-2 bg-gray-100 rounded-full hover:bg-rose-100 hover:text-rose-600 transition z-10">
-              <X size={20} />
+            {/* Botón Cerrar (Se mantiene igual) */}
+            <button 
+              onClick={() => setCompraDirecta(null)} 
+              className="absolute top-4 right-4 z-10 flex items-center gap-2 rounded-full bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-rose-100 hover:text-rose-600 shadow-sm"
+            >
+              <X size={16} />
+              Seguir viendo
             </button>
-            {/* titulo del Resumen del Producto */}  
-            <div className="text-center mb-6">
+
+            {/* 👇 TÍTULO: Le agregamos mt-10 para bajarlo y evitar el choque 👇 */}
+            <div className="text-center mb-6 mt-10">
               <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight">Compra Rápida</h2>
               <p className="text-xs text-gray-500 mt-1">Completa tus datos para coordinar el envío</p>
             </div>
@@ -394,7 +400,7 @@ export const HomePage = () => {
 
             {/* Mensaje de Aviso */}
             <div className="mt-6 bg-blue-50 text-blue-800 p-3.5 rounded-xl border border-blue-100 text-[10px] text-center font-medium leading-relaxed">
-              Al confirmar, se abrirá WhatsApp. <strong>Pronto un asesor te contactará</strong> por allí para confirmar el pago y entregar los detalles de tu envío.
+              Al confirmar, se abrirá WhatsApp. <strong>Pronto un asesor te contactará</strong> para confirmar el pago y entregar tu envío.
             </div>
 
            
@@ -403,11 +409,11 @@ export const HomePage = () => {
             <button
               onClick={async () => {
                 
-                /*
+                
                 if(!datosCliente.nombre || !datosCliente.telefono || !datosCliente.direccion) {
                   alert("Por favor, completa todos los campos para poder realizar el envío.");
                   return;
-                }*/
+                }
 
                 setCargandoCompra(true);
                 const numRef = `REF-${Math.floor(100000 + Math.random() * 900000)}`;
@@ -458,10 +464,11 @@ export const HomePage = () => {
                 }
               }}
               disabled={cargandoCompra}
-              className="mt-4 w-full bg-emerald-500 text-white py-4 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-emerald-600 transition shadow-lg shadow-emerald-200 disabled:bg-gray-400"
+              className="mt-4 w-full bg-rose-500 text-white py-4 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-rose-600 transition shadow-lg shadow-emerald-200 disabled:bg-gray-400"
             >
               {cargandoCompra ? "Registrando..." : "Confirmar Pedido y Abrir WhatsApp"}
             </button>
+           
 
             
           </div>

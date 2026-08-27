@@ -3,3 +3,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@keyframes volar-carrito {
+  0% { transform: scale(1) translate(0, 0); opacity: 1; }
+  100% { transform: scale(0.1) translate(50vw, -80vh); opacity: 0; }
+}
+.animate-volar {
+  animation: volar-carrito 0.7s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  position: absolute;
+  z-index: 100;
+  pointer-events: none;
+}
