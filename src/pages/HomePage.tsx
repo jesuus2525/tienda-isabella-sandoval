@@ -5,6 +5,7 @@ import { ArrowRight, ChevronLeft, ChevronRight, ShoppingBag, X } from "lucide-re
 import {  ShoppingCart } from "lucide-react";
 import { supabase } from "../supabase/client";
 import { useTheme } from "../context/ThemeContext";
+import { useNotification } from "../context/NotificationContext";
 import { PRODUCTOS_MAQUILLAJE } from "../data/productos";
 // Listado de conectores y palabras vacías a ignorar en la búsqueda
 const CONECTORES = new Set([
@@ -26,6 +27,7 @@ const esProductoNuevo = (producto: any) => {
 // 👇 estas son las exportaciones
 export const HomePage = () => {
   const { agregarAlCarrito } = useOutletContext<any>();
+  const { notify } = useNotification();
   
   const { config } = useTheme();
   const bannersPromocionales = (config.bannersPromocionales && config.bannersPromocionales.length > 0 ? config.bannersPromocionales : [
@@ -40,7 +42,7 @@ export const HomePage = () => {
   const [pausarCarrusel, setPausarCarrusel] = useState(false);
   const [searchParams] = useSearchParams(); // <-- 1. Captura la URL
   const terminoBusqueda = searchParams.get("buscar")?.toLowerCase() || ""; // <-- 2. Lee la palabra
-  const [toast, setToast] = useState<{ mensaje: string; tipo: "exito" | "error" } | null>(null);
+  
   
   // NUEVO: Estado para controlar el Modal del producto
   const [productoModal, setProductoModal] = useState<any | null>(null);
@@ -49,23 +51,23 @@ export const HomePage = () => {
   const [datosCliente, setDatosCliente] = useState({ nombre: '', telefono: '', direccion: '' });
   const [cargandoCompra, setCargandoCompra] = useState(false);
 
-  const finalizarPedido = async (producto: any, tono: string, precio: number) => {
+  const finalizarPedido = async () => {
                 const compraActual = compraDirecta;
 
                 if (!compraActual) {
-                  mostrarNotificacion("No se encontró el producto para esta compra.", "error");
+                  notify({ title: "Compra no disponible", message: "No se encontró el producto para esta compra.", type: "error" });
                   return;
                 }
 
                 if(datosCliente.telefono.toString().length !== 10 ) 
                    {
-                   mostrarNotificacion("Por favor, ingresar un numero correcto (10 digitos).", "error");
+                   notify({ title: "Teléfono inválido", message: "Por favor, ingresa un número correcto de 10 dígitos.", type: "warning" });
                   return;
                 }
                 
                 if(!datosCliente.nombre || !datosCliente.telefono || datosCliente.telefono.toString().length !== 10 || !datosCliente.direccion) 
                    {
-                  mostrarNotificacion("Por favor, completa todos los campos para poder realizar el envío.", "error");
+                  notify({ title: "Datos incompletos", message: "Completa todos los campos para poder realizar el envío.", type: "warning" });
                   return;
                 }
 
@@ -110,24 +112,14 @@ export const HomePage = () => {
                   window.open(`https://wa.me/${numeroAdmin}?text=${encodeURIComponent(mensaje)}`, '_blank');
                   setDatosCliente({ nombre: '', telefono: '', direccion: '' });
                   setCompraDirecta(null); 
+                  notify({ title: "Pedido registrado", message: "Tu pedido fue registrado correctamente.", type: "success" });
                   
-                } catch (err) {
-                  mostrarNotificacion("Hubo un error al registrar el pedido. Intenta nuevamente.", "error");
+                } catch {
+                  notify({ title: "Error al registrar", message: "Hubo un error al registrar el pedido. Intenta nuevamente.", type: "error" });
                 } finally {
                   setCargandoCompra(false);
                 }
               }
-
- // 2. Tu función para mostrar la notificación (autodestructible a los 3.5s)
-  const mostrarNotificacion = (mensaje: string, tipo: "exito" | "error" = "exito") => {
-    setToast({ mensaje, tipo });
-    setTimeout(() => setToast(null), 3500);
-  };
-
-  const handleAccionEjemplo = () => {
-    // Ejemplo de uso al realizar una acción exitosa
-    mostrarNotificacion("¡Producto guardado con éxito!", "exito");
-  };
 
   useEffect(() => {
     const obtenerProductos = async () => {
@@ -501,7 +493,7 @@ export const HomePage = () => {
                     onClick={() => {
                       agregarAlCarrito(productoModal, tonosSeleccionados[productoModal.id]);
                       setProductoModal(null); // Cierra el modal tras agregar
-                      mostrarNotificacion("¡Pedido agregado al carrito exitosamente!", "exito");
+                      notify({ title: "Agregado al carrito", message: "El producto se agregó al carrito exitosamente.", type: "success" });
                     }}
                     className="mt-5 w-full bg-gray-400 text-white py-3.5 px-4 rounded-xl text-xs font-bold uppercase tracking-widest flex flex-row items-center justify-center hover:bg-rose-600 transition"
                   >
@@ -551,7 +543,6 @@ export const HomePage = () => {
             <button 
               onClick={() => {
                 setCompraDirecta(null);
-                handleAccionEjemplo();
               }} 
               className="absolute top-4 right-4 z-10 flex items-center gap-2 rounded-full bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-rose-100 hover:text-rose-600 shadow-sm"
             >
@@ -636,7 +627,7 @@ export const HomePage = () => {
 
 {/* Botón Enviar con conexión a BD */}
             <button
-              onClick={() => finalizarPedido(compraDirecta.producto, compraDirecta.tono, compraDirecta.producto.precio)}
+              onClick={finalizarPedido}
               disabled={cargandoCompra}
               className="mt-4 w-full bg-rose-500 text-white py-4 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-rose-600 transition shadow-lg shadow-emerald-200 disabled:bg-gray-400"
             >

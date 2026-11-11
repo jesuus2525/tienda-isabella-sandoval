@@ -17,22 +17,13 @@ export const CartDrawer = ({ carrito, setCarrito, isCarritoAbierto, cerrarCarrit
   const [telefonoCliente, setTelefonoCliente] = useState("");
   const [direccionEnvio, setDireccionEnvio] = useState("");
   const [cargando, setCargando] = useState(false);
-  const [toast, setToast] = useState<{ mensaje: string; tipo: 'exito' | 'error' } | null>(null);
+  
   const { notify } = useNotification();
-  const mostrarNotificacion = (mensaje: string, tipo: 'exito' | 'error' = 'exito') => {
-    setToast({ mensaje, tipo });
-    setTimeout(() => setToast(null), 3500);
-  };
+  
 
-  const handleAccionEjemplo = () => {
-    // Ejemplo de uso al realizar una acción exitosa
-    mostrarNotificacion("¡Producto guardado con éxito!", "exito");
-  };
+ 
 
-  const handleAccionError = () => {
-    // Ejemplo de uso al ocurrir un error
-    mostrarNotificacion("Hubo un error al procesar la solicitud", "error");
-  };
+  
 
   // 1. Calcular el total
   const totalCarrito = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
