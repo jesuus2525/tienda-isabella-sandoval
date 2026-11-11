@@ -14,7 +14,7 @@
     textoAnuncio: string;
     bannersPromocionales: string[]; // Supabase (JSONB) guarda arreglos nativamente sin problema
   }
-
+// 👇 mensaje x se puede borrar
   const configDefecto: ConfigTienda = {
     nombreTienda: "ISABELLA SANDOVAL",
     eslogan: "makeup",

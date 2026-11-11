@@ -23,7 +23,7 @@ const esProductoNuevo = (producto: any) => {
 
   return Number.isFinite(fechaCreacion) && antiguedad >= 0 && antiguedad <= DIAS_PRODUCTO_NUEVO * 24 * 60 * 60 * 1000;
 };
-
+// 👇 estas son las exportaciones
 export const HomePage = () => {
   const { agregarAlCarrito } = useOutletContext<any>();
   

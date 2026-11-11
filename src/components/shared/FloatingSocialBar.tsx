@@ -1,5 +1,5 @@
 import { FaInstagram, FaTiktok, FaWhatsapp } from 'react-icons/fa6';
-
+// 👇 mensaje x se puede borrar
 const redes = [
   {
     name: 'Instagram',

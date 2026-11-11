@@ -1,6 +1,6 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
-
+// 👇 estas son las exportaciones
 export type NotificationType = 'success' | 'error' | 'info' | 'warning';
 
 interface NotificationItem {

@@ -17,4 +17,4 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       </NotificationProvider>
     </ThemeProvider>
   </React.StrictMode>,
-)
+) // 👇 mensaje x se puede borrar

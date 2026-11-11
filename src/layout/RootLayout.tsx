@@ -4,7 +4,7 @@ import { Navbar } from "../components/shared/Navbar";
 import { Footer } from "../components/shared/Footer";
 import { CartDrawer } from "../components/shared/CartDrawer";
 import { FloatingSocialBar } from "../components/shared/FloatingSocialBar";
-
+// 👇 mensaje x se puede borrar
 export const RootLayout = () => {
   const [carrito, setCarrito] = useState<any[]>([]);
   const [isCarritoAbierto, setIsCarritoAbierto] = useState(false);

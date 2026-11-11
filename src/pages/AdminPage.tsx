@@ -19,7 +19,7 @@ export const AdminPage = () => {
       duration: 4000,
     });
   };
-
+// 👇 mensaje x se puede borrar
   // Estados Inventario
   const [productos, setProductos] = useState<any[]>([]);
   const [busqueda, setBusqueda] = useState("");

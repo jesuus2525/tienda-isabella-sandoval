@@ -9,7 +9,7 @@ interface CartDrawerProps {
   cerrarCarrito: () => void;
 }
 
-
+// 👇 mensaje x se puede borrar
 
 export const CartDrawer = ({ carrito, setCarrito, isCarritoAbierto, cerrarCarrito }: CartDrawerProps) => {
   const [recomendados, setRecomendados] = useState<any[]>([]);
